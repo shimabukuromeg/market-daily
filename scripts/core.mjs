@@ -43,3 +43,6 @@ export function parsePage(body) {
 export function selectPosts(posts,window) {
   return [...new Map(posts.filter(p=>p.createdAt>=window.start&&p.createdAt<window.end).map(p=>[p.id,p])).values()].sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
 }
+export function pageIsBeforeStart(posts,start) {
+  return posts.length>0 && posts.every(post=>post.createdAt<start);
+}

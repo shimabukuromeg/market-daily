@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {editionWindow,latestEdition,parsePage,normalizeTweet,selectPosts} from '../scripts/core.mjs';
+import {editionWindow,latestEdition,pageIsBeforeStart,parsePage,normalizeTweet,selectPosts} from '../scripts/core.mjs';
 test('JST calendar day and year boundary',()=>{
  assert.equal(latestEdition(new Date('2025-12-31T14:59:59Z')),'2025-12-31');
  assert.equal(latestEdition(new Date('2025-12-31T15:00:00Z')),'2026-01-01');
@@ -14,6 +14,12 @@ test('today ends at execution time',()=>{
 test('window is start-inclusive, end-exclusive; IDs deduplicate',()=>{
  const w=editionWindow('2026-01-01',new Date('2026-01-03T00:00:00Z'));
  assert.equal(selectPosts([{id:'1',createdAt:w.start},{id:'1',createdAt:w.start},{id:'2',createdAt:w.end}],w).length,1);
+});
+test('an injected old post does not end pagination',()=>{
+ const start='2026-09-25T15:00:00.000Z';
+ assert.equal(pageIsBeforeStart([{createdAt:'2026-09-24T00:00:00.000Z'},{createdAt:'2026-09-26T00:00:00.000Z'}],start),false);
+ assert.equal(pageIsBeforeStart([{createdAt:'2026-09-24T00:00:00.000Z'},{createdAt:'2026-09-25T14:59:59.999Z'}],start),true);
+ assert.equal(pageIsBeforeStart([],start),false);
 });
 test('API errors and changed response fail closed',()=>{assert.throws(()=>parsePage({errors:[{}]}));assert.throws(()=>parsePage({data:{}}));});
 const tweet={rest_id:'123',core:{user_results:{result:{legacy:{screen_name:'example',name:'Example'}}}},legacy:{full_text:'hello',created_at:'2026-01-01T12:00:00Z'}};
