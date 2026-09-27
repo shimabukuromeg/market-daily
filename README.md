@@ -1,6 +1,6 @@
 # Market Daily — 株の観測日誌
 
-Xの「株」リストを収集し、Codexで日刊ニュースレターを編集する。記事はMarkdownでレビューし、PRをmainにマージするとGitHub Pagesへ公開する。
+Xで選んだ発信者の投稿を収集し、Codexで日刊ニュースレターを編集する。記事はMarkdownでレビューし、PRをmainにマージするとGitHub Pagesへ公開する。収集元のリストIDとURLは端末内だけに保存する。
 
 ## 導入状態
 
@@ -12,6 +12,9 @@ Node.js 22.13以上、Chrome、GitHub CLIへのログインが必要。
 
 ```sh
 npm ci
+mkdir -p .local
+cp config.example.json .local/config.json
+# .local/config.json の listId を端末内で設定する
 npm run login
 npm run collect -- 2026-09-27
 ```

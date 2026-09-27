@@ -1,0 +1,27 @@
+import {readdir,readFile,writeFile,mkdir} from 'node:fs/promises';
+import {parse} from 'yaml';
+import assert from 'node:assert/strict';
+const folder=new URL('../content/issues/',import.meta.url);
+const issues=[];
+for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().reverse()){
+ const raw=await readFile(new URL(file,folder),'utf8');
+ const m=raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+ assert(m,`Missing frontmatter: ${file}`);
+ const meta=parse(m[1]);
+ assert(meta.date===file.slice(0,-3),`Date mismatch: ${file}`);
+ for(const k of ['date','title','summary','coverage'])assert(typeof meta[k]==='string'&&meta[k].trim(),`Missing ${k}: ${file}`);
+ assert(Number.isInteger(meta.posts)&&meta.posts>=0,'Invalid post count');
+ assert(!/<\/?(?:script|iframe|style)\b/i.test(m[2]),'HTML is not allowed');
+ assert(m[2].includes('## 今日の要点'),'Missing editorial structure');
+ assert(meta.posts===0||/https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+/.test(m[2]),'Missing source links');
+ if(process.argv.includes('--sources') && meta.date === (process.argv.find(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)) ?? (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().at(-1)?.slice(0,-3))){
+  const source=JSON.parse(await readFile(new URL('../.local/collections/'+meta.date+'.json',import.meta.url)));
+  const allowed=new Set(source.posts.map(p=>p.url));
+  for(const link of m[2].matchAll(/https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+/g))assert(allowed.has(link[0]),'Unknown source: '+link[0]);
+  assert(source.posts.length===meta.posts,'Post count mismatch');
+ }
+ issues.push({...meta,markdown:m[2]});
+}
+await mkdir(new URL('../lib/',import.meta.url),{recursive:true});
+await writeFile(new URL('../lib/issues.json',import.meta.url),JSON.stringify(issues,null,2)+'\n');
+console.log(`Validated ${issues.length} editions`);
