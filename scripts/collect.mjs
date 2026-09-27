@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile,rename,rm} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {editionWindow,latestEdition,parsePage,selectPosts} from './core.mjs';
+import {editionWindow,latestEdition,pageIsBeforeStart,parsePage,selectPosts} from './core.mjs';
 
 const configPath=new URL('../.local/config.json',import.meta.url);
 let config;
@@ -58,8 +58,10 @@ try {
     pages++;
     all.push(...parsed.tweets);
     skipped+=parsed.skipped;
-    const oldest=parsed.tweets.reduce((value,tweet)=>tweet.createdAt<value?tweet.createdAt:value,'9999');
-    if(oldest<window.start){
+    // Pinned or injected old posts can appear beside current posts. A single
+    // old post does not prove that the chronological cursor crossed the
+    // requested boundary; stop only when the whole page is before it.
+    if(pageIsBeforeStart(parsed.tweets,window.start)){
       coverage='window-covered';
       reason='reached-start';
       break;
