@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict';
-export function editionWindow(date) {
+export function editionWindow(date, now=new Date()) {
   assert(/^\d{4}-\d{2}-\d{2}$/.test(date), 'Use YYYY-MM-DD');
-  const end = new Date(date+'T22:00:00+09:00');
-  assert(Number.isFinite(+end) && end.toISOString().slice(0,10) === date, 'Invalid date');
-  return {start:new Date(+end-86400000).toISOString(),end:end.toISOString()};
+  const start = new Date(date+'T00:00:00+09:00');
+  assert(Number.isFinite(+start) && new Date(+start+9*3600000).toISOString().slice(0,10) === date, 'Invalid date');
+  const today = latestEdition(now);
+  assert(date <= today, 'Future dates cannot be collected');
+  const end = date === today ? now : new Date(+start+86400000);
+  assert(+end >= +start, 'Execution time precedes the requested date');
+  return {start:start.toISOString(),end:end.toISOString(),partial:date===today};
 }
 export function latestEdition(now=new Date()) {
   const jst=new Date(+now+9*3600000);
-  if(jst.getUTCHours()<22) jst.setUTCDate(jst.getUTCDate()-1);
   return jst.toISOString().slice(0,10);
 }
 export function normalizeTweet(raw) {
-  const t=raw?.tweet??raw;
+  const candidate=raw?.tweet??raw;
+  const t=candidate?.__typename==='TweetWithVisibilityResults' ? candidate.tweet : candidate;
   const user=t?.core?.user_results?.result;
   if(!t?.rest_id || !t?.legacy || !user || user.legacy?.protected || user.privacy?.protected) return null;
   const legacy=t.legacy;
