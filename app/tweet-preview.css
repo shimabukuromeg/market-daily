@@ -1,0 +1,38 @@
+.prose blockquote {
+  position: relative;
+  margin: 1.25rem 0 1.75rem;
+  padding: 2.7rem 1.3rem 1.15rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--foreground);
+  border-radius: 12px;
+  background: #f7f9fc;
+  color: var(--foreground);
+  box-shadow: 0 8px 24px rgba(23, 35, 51, 0.06);
+}
+
+.prose blockquote::before {
+  content: "X POST PREVIEW";
+  position: absolute;
+  top: 0.9rem;
+  left: 1.3rem;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.prose blockquote p { margin: 0.55rem 0; }
+.prose blockquote p:first-child { margin-top: 0; font-size: 0.9rem; }
+.prose blockquote p:nth-child(2) { font-family: "Yu Mincho", serif; font-size: 1.05rem; line-height: 1.8; }
+.prose blockquote p:last-child { margin-bottom: 0; padding-top: 0.35rem; border-top: 1px solid var(--line); font-size: 0.85rem; }
+.prose blockquote a { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif; font-weight: 600; }
+
+.prose .twitter-tweet-rendered {
+  margin: 1.25rem auto 1.75rem !important;
+}
+
+@media (max-width: 600px) {
+  .prose blockquote { padding: 2.6rem 1rem 1rem; }
+  .prose blockquote::before { left: 1rem; }
+}

@@ -1,0 +1,8 @@
+{
+  "listId": "SET_ON_THIS_DEVICE",
+  "timezone": "Asia/Tokyo",
+  "cdpEndpoint": "http://127.0.0.1:9222",
+  "relayBaseUrl": "http://127.0.0.1:3131",
+  "repository": "shimabukuromeg/market-daily",
+  "maxPages": 100
+}
