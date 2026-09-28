@@ -35,7 +35,7 @@ npm run build
 npm run dev
 ```
 
-記事は `content/issues/YYYY-MM-DD.md`。日付・見出し・導入・投稿数・収集範囲をfrontmatterに記載する。収集本文を公開しない。記事のPRをレビューしてマージした時だけ公開する。
+記事は `content/issues/YYYY-MM-DD.md`。日付・見出し・導入・投稿数・収集範囲をfrontmatterに記載する。収集した生データは公開せず、編集で選定した投稿だけを、投稿者・短い要旨・元投稿リンクを備えた静的プレビューカードとして掲載する。記事のPRをレビューしてマージした時だけ公開する。
 
 GitHubリポジトリの Settings → Pages → Source を GitHub Actions に設定する。Actionsの `pages` が静的サイトを公開する。サイトの表示と記事は公開、XログインとCodexの実行環境はこの端末に残る。
 
