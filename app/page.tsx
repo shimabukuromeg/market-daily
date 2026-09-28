@@ -169,7 +169,6 @@ export default function Home() {
               <div className="issue-meta">
                 <span>{index === 0 ? '最新号' : 'バックナンバー'}</span>
                 <time>{i.date}</time>
-                <span>{i.posts}投稿を確認</span>
               </div>
               <h2>{i.title}</h2>
               <p className="lede">{i.summary}</p>
