@@ -28,6 +28,10 @@
 .prose blockquote p:last-child { margin-bottom: 0; padding-top: 0.35rem; border-top: 1px solid var(--line); font-size: 0.85rem; }
 .prose blockquote a { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif; font-weight: 600; }
 
+.prose .twitter-tweet-rendered {
+  margin: 1.25rem auto 1.75rem !important;
+}
+
 @media (max-width: 600px) {
   .prose blockquote { padding: 2.6rem 1rem 1rem; }
   .prose blockquote::before { left: 1rem; }
