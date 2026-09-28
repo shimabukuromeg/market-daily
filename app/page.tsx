@@ -50,18 +50,90 @@ function XPosts({ source }: { source: string }) {
     </section>
   );
 }
+function Metrics({ source }: { source: string }) {
+  const metrics = source
+    .trim()
+    .split('\n')
+    .map((line) => {
+      const [label, value] = line.split('|').map((part) => part.trim());
+      return { label, value };
+    })
+    .filter((metric) => metric.label && metric.value);
+  return (
+    <dl className="metrics" aria-label="収集データの概要">
+      {metrics.map((metric) => (
+        <div key={metric.label}>
+          <dt>{metric.label}</dt>
+          <dd>{metric.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+function ThemeChart({ source }: { source: string }) {
+  const rows = source
+    .trim()
+    .split('\n')
+    .map((line) => {
+      const [label, posts, authors] = line
+        .split('|')
+        .map((part) => part.trim());
+      return { label, posts: Number(posts), authors: Number(authors) };
+    })
+    .filter(
+      (row) =>
+        row.label && Number.isFinite(row.posts) && Number.isFinite(row.authors),
+    );
+  const maxPosts = Math.max(...rows.map((row) => row.posts), 1),
+    maxAuthors = Math.max(...rows.map((row) => row.authors), 1);
+  return (
+    <figure className="theme-chart">
+      <figcaption>テーマ別の投稿数と投稿者数</figcaption>
+      <div className="chart-legend">
+        <span className="posts-key">投稿数</span>
+        <span className="authors-key">投稿者数</span>
+      </div>
+      {rows.map((row) => (
+        <div className="chart-row" key={row.label}>
+          <strong>{row.label}</strong>
+          <div className="chart-bar">
+            <span
+              className="posts-bar"
+              style={{ width: `${(row.posts / maxPosts) * 100}%` }}
+            >
+              {row.posts}
+            </span>
+          </div>
+          <div className="chart-bar">
+            <span
+              className="authors-bar"
+              style={{ width: `${(row.authors / maxAuthors) * 100}%` }}
+            >
+              {row.authors}
+            </span>
+          </div>
+        </div>
+      ))}
+      <p>
+        各系列は最大値を100%として表示。テーマは重複分類のため、投稿数の合計は収集件数と一致しません。
+      </p>
+    </figure>
+  );
+}
 const markdownComponents: Components = {
   blockquote: ({ children }) => (
     <blockquote className="twitter-tweet" data-dnt="true" data-theme="light">
       {children}
     </blockquote>
   ),
-  code: ({ className, children }) =>
-    className === 'language-x-posts' ? (
-      <XPosts source={typeof children === 'string' ? children : ''} />
-    ) : (
-      <code className={className}>{children}</code>
-    ),
+  code: ({ className, children }) => {
+    const source = typeof children === 'string' ? children : '';
+    if (className === 'language-x-posts') return <XPosts source={source} />;
+    if (className === 'language-metrics') return <Metrics source={source} />;
+    if (className === 'language-theme-chart')
+      return <ThemeChart source={source} />;
+    return <code className={className}>{children}</code>;
+  },
   pre: ({ children }) => <>{children}</>,
 };
 export default function Home() {
