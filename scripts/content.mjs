@@ -22,6 +22,6 @@ for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().re
  }
  issues.push({...meta,markdown:m[2]});
 }
-await mkdir(new URL('../lib/',import.meta.url),{recursive:true});
-await writeFile(new URL('../lib/issues.json',import.meta.url),JSON.stringify(issues,null,2)+'\n');
+await mkdir(new URL('../src/generated/',import.meta.url),{recursive:true});
+await writeFile(new URL('../src/generated/issues.json',import.meta.url),JSON.stringify(issues,null,2)+'\n');
 console.log(`Validated ${issues.length} editions`);

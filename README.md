@@ -1,10 +1,10 @@
 # Market Daily — 株の観測日誌
 
-Xで選んだ発信者の投稿を収集し、Codexで日刊ニュースレターを編集する。記事はMarkdownでレビューし、PRをmainにマージするとGitHub Pagesへ公開する。収集元のリストIDとURLは端末内だけに保存する。
+Xで選んだ発信者の投稿を収集し、Codexで日刊ニュースレターを編集する。記事はMarkdownでレビューし、Astroで静的サイトを生成する。PRをmainにマージするとGitHub Pagesへ公開する。収集元のリストIDとURLは端末内だけに保存する。
 
 ## 導入状態
 
-収集の単体テスト・静的サイトのビルド・型検査は確認済み。Xログインと実データ収集は未確認。初期PRのマージと初回収集の確認後に、停止中の毎晩22時の定期タスクを有効化する。
+収集の単体テスト・Astroによる静的サイトのビルド・型検査を確認済み。定期タスクは毎朝7時に前日分を作成する。
 
 ## この端末で使う
 
@@ -28,11 +28,12 @@ npm run collect -- 2026-09-27
 
 ## 編集・公開
 
-Codexアプリで `prompts/daily.md` に従って編集する。アプリの定期タスクを毎日22時（Asia/Tokyo）に設定する。端末を起動し、Codexアプリを実行しておく。スリープ中の定刻実行は保証しない。
+Codexアプリで `prompts/daily.md` に従って編集する。アプリの定期タスクを毎朝7時（Asia/Tokyo）に設定する。端末を起動し、Codexアプリを実行しておく。スリープ中の定刻実行は保証しない。
 
 ```sh
 npm run content -- --sources
 npm test
+npm run check
 npm run build
 npm run dev
 ```

@@ -30,6 +30,7 @@ yarn-error.log*
 .env*
 
 # deployment and generated files
+/.astro/
 .vercel
 next-env.d.ts
 /dist/
@@ -40,6 +41,7 @@ next-env.d.ts
 # Private collection data and browser authentication
 .local/
 lib/issues.json
+/src/generated/issues.json
 out/
 
 *.tsbuildinfo

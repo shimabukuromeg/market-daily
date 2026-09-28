@@ -1,0 +1,41 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { editions, sitePath, type Issue } from '../lib/issues';
+import { renderMarkdown } from '../lib/markdown';
+
+export function getStaticPaths() {
+  return editions.map((issue) => ({
+    params: { date: issue.date },
+    props: { issue },
+  }));
+}
+
+interface Props {
+  issue: Issue;
+}
+
+const { issue } = Astro.props;
+const content = renderMarkdown(issue.markdown);
+---
+
+<BaseLayout title={`${issue.title} | Market Daily`} description={issue.summary}>
+  <main>
+    <SiteHeader />
+    <div class="back-link">
+      <a href={sitePath()}>← 記事一覧へ</a>
+    </div>
+    <article>
+      <div class="issue-meta">
+        <span>Market Daily</span>
+        <time datetime={issue.date}>{issue.date}</time>
+      </div>
+      <h1 class="issue-title">{issue.title}</h1>
+      <p class="lede">{issue.summary}</p>
+      <p class="coverage">{issue.coverage}</p>
+      <div class="prose" set:html={content} />
+    </article>
+    <SiteFooter />
+  </main>
+</BaseLayout>
