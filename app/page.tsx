@@ -10,10 +10,13 @@ export default function Home() {
       <section className="archive" aria-labelledby="archive-title">
         <div className="archive-heading">
           <div>
-            <span className="edition">ARCHIVE</span>
-            <h1 id="archive-title">記事一覧</h1>
+            <span className="edition">DAILY MARKET BRIEFING</span>
+            <h1 id="archive-title">市場を追う、毎日の投資メモ</h1>
+            <p className="archive-description">
+              Xで選んだ発信者の投稿から、投資アイデアと確認条件を整理します。
+            </p>
           </div>
-          <p>{editions.length}号</p>
+          <p className="issue-count">{editions.length}号</p>
         </div>
         {editions.length === 0 ? (
           <div className="empty">

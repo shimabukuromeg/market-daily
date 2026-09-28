@@ -30,7 +30,6 @@
   font-size: 0.9rem;
 }
 .prose blockquote p:nth-child(2) {
-  font-family: 'Yu Mincho', serif;
   font-size: 1.05rem;
   line-height: 1.8;
 }
@@ -93,8 +92,8 @@
 .metrics dd {
   margin: 0.2rem 0 0;
   color: var(--foreground);
-  font-family: Georgia, serif;
   font-size: 1.7rem;
+  font-weight: 800;
   line-height: 1.2;
 }
 .theme-chart {

@@ -144,11 +144,14 @@ const markdownComponents: Components = {
 export function SiteHeader() {
   return (
     <header className="masthead">
-      <div className="eyebrow">MARKET WATCH / CALENDAR DAY JST</div>
       <Link className="site-title" href="/">
-        株の観測日誌<span>Market Daily</span>
+        <strong>Market Daily</strong>
+        <span>株の観測日誌</span>
       </Link>
-      <p>選んだ発信者から、市場の話題と見方を読む。</p>
+      <nav aria-label="サイト内ナビゲーション">
+        <Link href="/">記事一覧</Link>
+        <a href="https://github.com/shimabukuromeg/market-daily">GitHub</a>
+      </nav>
     </header>
   );
 }
