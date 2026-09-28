@@ -12,7 +12,7 @@ for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().re
  for(const k of ['date','title','summary','coverage'])assert(typeof meta[k]==='string'&&meta[k].trim(),`Missing ${k}: ${file}`);
  assert(Number.isInteger(meta.posts)&&meta.posts>=0,'Invalid post count');
  assert(!/<\/?(?:script|iframe|style)\b/i.test(m[2]),'HTML is not allowed');
- assert(m[2].includes('## 今日の要点'),'Missing editorial structure');
+ assert(m[2].includes('## 今日の要点') || m[2].includes('## 今日の判定'),'Missing editorial structure');
  assert(meta.posts===0||/https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+/.test(m[2]),'Missing source links');
  if(process.argv.includes('--sources') && meta.date === (process.argv.find(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)) ?? (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().at(-1)?.slice(0,-3))){
   const source=JSON.parse(await readFile(new URL('../.local/collections/'+meta.date+'.json',import.meta.url)));
