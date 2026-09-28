@@ -1,0 +1,51 @@
+---
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { editions, sitePath } from '../lib/issues';
+---
+
+<BaseLayout>
+  <main>
+    <SiteHeader />
+    <section class="archive" aria-labelledby="archive-title">
+      <div class="archive-heading">
+        <div>
+          <span class="edition">DAILY MARKET BRIEFING</span>
+          <h1 id="archive-title">市場を追う、毎日の投資メモ</h1>
+          <p class="archive-description">
+            Xで選んだ発信者の投稿から、投資アイデアと確認条件を整理します。
+          </p>
+        </div>
+        <p class="issue-count">{editions.length}号</p>
+      </div>
+      {
+        editions.length === 0 ? (
+          <div class="empty">
+            <h2>次の相場を考える、毎日の一枚。</h2>
+            <p>初回の記事を準備しています。</p>
+          </div>
+        ) : (
+          <div class="issue-list">
+            {editions.map((issue, index) => (
+              <a class="issue-card" href={sitePath(`${issue.date}/`)}>
+                <div class="issue-card-meta">
+                  <time datetime={issue.date}>{issue.date}</time>
+                  <span>
+                    {index === 0
+                      ? '最新号'
+                      : `${issue.posts.toLocaleString('ja-JP')}件`}
+                  </span>
+                </div>
+                <h2>{issue.title}</h2>
+                <p>{issue.summary}</p>
+                <span class="read-more">読む →</span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </section>
+    <SiteFooter />
+  </main>
+</BaseLayout>
