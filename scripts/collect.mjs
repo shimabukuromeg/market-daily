@@ -2,6 +2,7 @@ import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile,rename,rm} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {editionWindow,latestEdition,pageIsBeforeStart,parsePage,selectPosts} from './core.mjs';
+import {persistCollection} from './storage.mjs';
 
 const configPath=new URL('../.local/config.json',import.meta.url);
 let config;
@@ -87,7 +88,8 @@ try {
   const target=resolve(local,'collections',date+'.json');
   await writeFile(target+'.tmp',JSON.stringify(payload,null,2)+'\n',{mode:0o600});
   await rename(target+'.tmp',target);
-  console.log(JSON.stringify({date,posts:posts.length,coverage,reason,pages,path:target}));
+  const stored=await persistCollection(payload,{localDir:local});
+  console.log(JSON.stringify({date,posts:posts.length,coverage,reason,pages,path:target,rawPath:stored.rawPath,dbPath:stored.dbPath}));
   if(coverage==='partial')process.exitCode=2;
 } finally {
   await rm(resolve(local,'collector.lock'),{recursive:true,force:true});

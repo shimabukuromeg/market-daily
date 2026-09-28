@@ -18,11 +18,13 @@
     "browser": "node scripts/open-browser.mjs",
     "relay": "twitter-api-safe-relay .local/relay-settings.json",
     "collect": "node scripts/collect.mjs",
+    "storage:backfill": "node scripts/backfill-storage.mjs",
     "login": "npm run browser",
     "postbuild": "node scripts/static.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
+    "@duckdb/node-api": "^1.5.5-r.5",
     "@shadcn/react": "0.3.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
