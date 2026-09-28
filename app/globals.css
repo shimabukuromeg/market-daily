@@ -1,3 +1,248 @@
-@import "tailwindcss";
-:root{--background:#fff;--foreground:#172333;--accent:#174ac6;--muted:#566273;--line:#ccd3dc}
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:2rem}body{margin:0;background:var(--background);color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif;font-size:16px;line-height:1.9}main{max-width:1040px;margin:auto;padding:3rem 2rem}a{color:var(--accent);text-underline-offset:4px;overflow-wrap:anywhere}a:hover{text-decoration-thickness:2px}a:focus-visible{outline:3px solid var(--accent);outline-offset:5px}.masthead{border-top:5px solid var(--foreground);border-bottom:1px solid var(--foreground);padding:1.2rem 0 1rem}.eyebrow{font-size:.8rem;letter-spacing:.14em;font-weight:700}.masthead h1{font-family:"Yu Mincho",serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.04em;line-height:1.4;margin:.6rem 0}.masthead h1 span{font-family:Georgia,serif;font-weight:400;font-size:1.2rem;display:inline-block;margin-left:1.5rem;letter-spacing:0}.masthead p{margin:.3rem 0;color:var(--muted)}.empty{max-width:700px;margin:5rem auto 6rem}.edition,.issue-meta{font-size:.875rem;color:var(--accent);font-weight:600}.empty h2{font-family:"Yu Mincho",serif;font-size:2rem;line-height:1.6}.empty p{color:var(--muted)}nav{display:flex;gap:1.3rem;flex-wrap:wrap;padding:1rem 0;border-bottom:1px solid var(--line);font-size:.875rem}article{max-width:760px;margin:3rem auto 5rem}.issue-meta{display:flex;flex-wrap:wrap;gap:1.3rem}article>h2{font-family:"Yu Mincho",serif;font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.5;margin:1rem 0}.lede{font-size:1.125rem}.coverage{font-size:.875rem;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:1.5rem}.prose h2{font-size:1.4rem;margin:2.4rem 0 1rem;padding-top:.5rem;border-top:2px solid var(--foreground)}.prose h3{font-size:1.125rem;margin-top:1.5rem}.prose p{margin:1rem 0}.prose ul,.prose ol{padding-left:1.5rem;list-style:revert}.prose li{margin:.6rem 0}.prose blockquote{border-left:3px solid var(--line);margin-left:0;padding-left:1rem;color:var(--muted)}.prose a{font-size:.95em}footer{border-top:1px solid var(--foreground);padding-top:1.5rem;font-size:.875rem;color:var(--muted)}footer p{max-width:650px}footer strong{color:var(--foreground);font-family:Georgia,serif;font-size:1.2rem}@media(max-width:600px){main{padding:1.5rem 1.2rem}.masthead h1 span{display:block;margin:.5rem 0}.empty{margin:3rem 0}.empty h2{font-size:1.65rem}}
+@import 'tailwindcss';
+:root {
+  --background: #fff;
+  --foreground: #172333;
+  --accent: #174ac6;
+  --muted: #566273;
+  --line: #ccd3dc;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+}
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Noto Sans JP',
+    'Hiragino Kaku Gothic ProN', sans-serif;
+  font-size: 16px;
+  line-height: 1.9;
+}
+main {
+  max-width: 1040px;
+  margin: auto;
+  padding: 3rem 2rem;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+.masthead {
+  border-top: 5px solid var(--foreground);
+  border-bottom: 1px solid var(--foreground);
+  padding: 1.2rem 0 1rem;
+}
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+.site-title {
+  color: var(--foreground);
+  display: block;
+  font-family: 'Yu Mincho', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  margin: 0.6rem 0;
+  text-decoration: none;
+}
+.site-title span {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  display: inline-block;
+  margin-left: 1.5rem;
+  letter-spacing: 0;
+}
+.masthead p {
+  margin: 0.3rem 0;
+  color: var(--muted);
+}
+.empty {
+  max-width: 700px;
+  margin: 5rem auto 6rem;
+}
+.edition,
+.issue-meta {
+  font-size: 0.875rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.empty h2 {
+  font-family: 'Yu Mincho', serif;
+  font-size: 2rem;
+  line-height: 1.6;
+}
+.empty p {
+  color: var(--muted);
+}
+.archive {
+  margin: 3rem auto 5rem;
+  max-width: 860px;
+}
+.archive-heading {
+  align-items: end;
+  border-bottom: 2px solid var(--foreground);
+  display: flex;
+  justify-content: space-between;
+}
+.archive-heading h1 {
+  font-family: 'Yu Mincho', serif;
+  font-size: 2rem;
+  margin: 0.2rem 0 1rem;
+}
+.archive-heading p {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.issue-list {
+  display: grid;
+}
+.issue-card {
+  border-bottom: 1px solid var(--line);
+  color: var(--foreground);
+  display: block;
+  padding: 1.7rem 0.2rem;
+  text-decoration: none;
+}
+.issue-card:hover {
+  background: #f7f9fc;
+}
+.issue-card-meta {
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 1rem;
+  justify-content: space-between;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.issue-card h2 {
+  font-family: 'Yu Mincho', serif;
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  line-height: 1.5;
+  margin: 0.5rem 0;
+}
+.issue-card p {
+  color: var(--muted);
+  margin: 0.35rem 0;
+}
+.read-more {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-top: 0.7rem;
+  color: var(--accent);
+}
+.back-link {
+  border-bottom: 1px solid var(--line);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+.back-link a {
+  text-decoration: none;
+}
+article {
+  max-width: 760px;
+  margin: 3rem auto 5rem;
+}
+.issue-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+}
+.issue-title {
+  font-family: 'Yu Mincho', serif;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+.lede {
+  font-size: 1.125rem;
+}
+.coverage {
+  font-size: 0.875rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+}
+.prose h2 {
+  font-size: 1.4rem;
+  margin: 2.4rem 0 1rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid var(--foreground);
+}
+.prose h3 {
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+}
+.prose p {
+  margin: 1rem 0;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.5rem;
+  list-style: revert;
+}
+.prose li {
+  margin: 0.6rem 0;
+}
+.prose blockquote {
+  border-left: 3px solid var(--line);
+  margin-left: 0;
+  padding-left: 1rem;
+  color: var(--muted);
+}
+.prose a {
+  font-size: 0.95em;
+}
+footer {
+  border-top: 1px solid var(--foreground);
+  padding-top: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+footer p {
+  max-width: 650px;
+}
+footer strong {
+  color: var(--foreground);
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 1.5rem 1.2rem;
+  }
+  .site-title span {
+    display: block;
+    margin: 0.5rem 0;
+  }
+  .empty {
+    margin: 3rem 0;
+  }
+  .empty h2 {
+    font-size: 1.65rem;
+  }
+  .archive {
+    margin-top: 2rem;
+  }
+  .issue-card {
+    padding: 1.4rem 0;
+  }
+}
