@@ -42,7 +42,7 @@ next-env.d.ts
 .local/
 lib/issues.json
 /src/generated/issues.json
-/public/og/market-daily.png
+/public/og/*.png
 out/
 
 *.tsbuildinfo
