@@ -27,6 +27,7 @@ const canonical = new URL(sitePath(`${issue.date}/`), Astro.site).href;
   description={issue.summary}
   canonical={canonical}
   type="article"
+  image={`og/${issue.date}.png`}
 >
   <main>
     <SiteHeader />
