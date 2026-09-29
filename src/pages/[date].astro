@@ -1,6 +1,7 @@
 ---
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import ShareActions from '../components/ShareActions.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { editions, sitePath, type Issue } from '../lib/issues';
 import { renderMarkdown } from '../lib/markdown';
@@ -18,9 +19,15 @@ interface Props {
 
 const { issue } = Astro.props;
 const content = renderMarkdown(issue.markdown);
+const canonical = new URL(sitePath(`${issue.date}/`), Astro.site).href;
 ---
 
-<BaseLayout title={`${issue.title} | Market Daily`} description={issue.summary}>
+<BaseLayout
+  title={`${issue.title} | Market Daily`}
+  description={issue.summary}
+  canonical={canonical}
+  type="article"
+>
   <main>
     <SiteHeader />
     <div class="back-link">
@@ -34,6 +41,7 @@ const content = renderMarkdown(issue.markdown);
       <h1 class="issue-title">{issue.title}</h1>
       <p class="lede">{issue.summary}</p>
       <p class="coverage">{issue.coverage}</p>
+      <ShareActions title={`${issue.title} | Market Daily`} url={canonical} />
       <div class="prose" set:html={content} />
     </article>
     <SiteFooter />

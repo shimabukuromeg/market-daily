@@ -5,12 +5,17 @@ import '../styles/tweet-preview.css';
 interface Props {
   title?: string;
   description?: string;
+  canonical?: string;
+  type?: 'website' | 'article';
 }
 
 const {
   title = '株の観測日誌 | Market Daily',
   description = 'Xの株リストをもとに、市場の話題、注目銘柄、異なる見方を出典付きで整理する日刊ニュースレター。',
+  canonical = new URL(Astro.url.pathname, Astro.site).href,
+  type = 'website',
 } = Astro.props;
+const ogImage = new URL(`${import.meta.env.BASE_URL}og/market-daily.png`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -19,6 +24,21 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content="Market Daily" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Market Daily — Daily Market Briefing" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <title>{title}</title>
     <script async src="https://platform.x.com/widgets.js"></script>

@@ -227,10 +227,52 @@ article {
 }
 .coverage {
   margin: 0.8rem 0 0;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.8rem;
+}
+.share-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.35rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.share-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.share-x {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: white;
+}
+.share-x:hover {
+  background: #303a48;
+  color: white;
+}
+.share-copy {
+  background: white;
+  color: var(--foreground);
+}
+.share-copy:hover,
+.share-copy.is-copied {
+  border-color: #a9c8eb;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 .prose h2 {
   margin: 3rem 0 1.2rem;

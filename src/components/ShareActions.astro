@@ -1,0 +1,53 @@
+---
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+const xUrl = `https://twitter.com/intent/tweet?${new URLSearchParams({
+  text: title,
+  url,
+})}`;
+---
+
+<div class="share-actions" aria-label="記事を共有">
+  <a class="share-button share-x" href={xUrl} target="_blank" rel="noopener noreferrer">
+    <span aria-hidden="true">𝕏</span>
+    Xでシェア
+  </a>
+  <button class="share-button share-copy" type="button" data-share-url={url}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+      <path d="M8 7V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2M5 8h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    <span>リンクをコピー</span>
+  </button>
+</div>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-share-url]')) {
+    button.addEventListener('click', async () => {
+      const url = button.dataset.shareUrl ?? window.location.href;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const input = document.createElement('textarea');
+        input.value = url;
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        document.body.append(input);
+        input.select();
+        document.execCommand('copy');
+        input.remove();
+      }
+      const label = button.querySelector('span');
+      if (!label) return;
+      label.textContent = 'コピーしました';
+      button.classList.add('is-copied');
+      window.setTimeout(() => {
+        label.textContent = 'リンクをコピー';
+        button.classList.remove('is-copied');
+      }, 1800);
+    });
+  }
+</script>
