@@ -13,7 +13,7 @@ try {
   throw error;
 }
 if (!/^\d+$/.test(config.listId ?? '')) throw new Error('Invalid listId in .local/config.json');
-if (!config.cdpEndpoint || !config.relayBaseUrl) throw new Error('Missing cdpEndpoint or relayBaseUrl in .local/config.json');
+if (!config.cdpEndpoint) throw new Error('Missing cdpEndpoint in .local/config.json');
 
 const date=process.argv.find(x=>/^\d{4}-\d{2}-\d{2}$/.test(x))??latestEdition();
 const window=editionWindow(date);
@@ -26,16 +26,13 @@ try {
 }
 
 try {
-  const relayHealth=await fetch(new URL('/health',config.relayBaseUrl)).catch(()=>null);
-  if(!relayHealth?.ok)throw new Error('Relay is not running; start npm run relay');
-
   const browser=await chromium.connectOverCDP(config.cdpEndpoint);
   const context=browser.contexts()[0];
   if(!context)throw new Error('No Chrome context found; run npm run browser first');
-  const page=context.pages().find(p=>p.url().startsWith('https://x.com/'))??await context.newPage();
+  const page=await context.newPage();
 
-  // X supplies the current query ID and feature parameters. Pagination is sent
-  // through twitter-api-safe-relay using the logged-in browser client.
+  // X supplies the current query ID, authentication headers, and feature
+  // parameters. Pagination reuses the logged-in browser context directly.
   const firstPromise=page.waitForResponse(r=>r.url().includes('/ListLatestTweetsTimeline')&&r.request().method()==='GET',{timeout:60000});
   await page.goto('https://x.com/i/lists/'+config.listId);
   const response=await firstPromise;
@@ -43,15 +40,20 @@ try {
   const requestUrl=new URL(response.url());
   const params=Object.fromEntries(requestUrl.searchParams);
   const variables=JSON.parse(params.variables);
-  const requestThroughRelay=async currentParams=>{
-    const relayUrl=new URL(requestUrl.pathname,config.relayBaseUrl);
-    for(const [key,value] of Object.entries(currentParams))relayUrl.searchParams.set(key,value);
-    const relayResponse=await fetch(relayUrl,{headers:{'x-profile-name':'market-daily'}});
-    if(!relayResponse.ok)throw new Error('Relay request failed with HTTP '+relayResponse.status());
-    const result=await relayResponse.json();
-    return result?.data?.list?result:result?.data?.data?.list?result.data:result;
+  const sourceHeaders=response.request().headers();
+  const forwardedHeaders=Object.fromEntries(
+    ['authorization','x-csrf-token','x-twitter-active-user','x-twitter-auth-type','x-twitter-client-language']
+      .filter(name=>sourceHeaders[name])
+      .map(name=>[name,sourceHeaders[name]]),
+  );
+  const requestThroughBrowser=async currentParams=>{
+    const apiUrl=new URL(requestUrl);
+    for(const [key,value] of Object.entries(currentParams))apiUrl.searchParams.set(key,value);
+    const apiResponse=await context.request.get(apiUrl.href,{headers:forwardedHeaders});
+    if(!apiResponse.ok())throw new Error('X request failed with HTTP '+apiResponse.status());
+    return apiResponse.json();
   };
-  let body=await requestThroughRelay(params),all=[],skipped=0,pages=0,coverage='partial',reason='page-limit';
+  let body=await requestThroughBrowser(params),all=[],skipped=0,pages=0,coverage='partial',reason='page-limit';
   const cursors=new Set();
 
   while(pages<config.maxPages){
@@ -79,11 +81,11 @@ try {
     cursors.add(parsed.cursor);
     params.variables=JSON.stringify({...variables,cursor:parsed.cursor});
     await new Promise(resolveDelay=>setTimeout(resolveDelay,1500));
-    body=await requestThroughRelay(params);
+    body=await requestThroughBrowser(params);
   }
 
   const posts=selectPosts(all,window);
-  const payload={date,listId:config.listId,window,collectedAt:new Date().toISOString(),collectionMethod:'twitter-api-safe-relay/cdp',coverage,reason,pages,skipped,posts};
+  const payload={date,listId:config.listId,window,collectedAt:new Date().toISOString(),collectionMethod:'playwright-cdp',coverage,reason,pages,skipped,posts};
   await mkdir(resolve(local,'collections'),{recursive:true,mode:0o700});
   const target=resolve(local,'collections',date+'.json');
   await writeFile(target+'.tmp',JSON.stringify(payload,null,2)+'\n',{mode:0o600});

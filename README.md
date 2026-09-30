@@ -16,11 +16,10 @@ mkdir -p .local
 cp config.example.json .local/config.json
 # .local/config.json の listId を端末内で設定する
 npm run browser
-npm run relay
 npm run collect -- 2026-09-27
 ```
 
-`npm run browser` はリモートデバッグを有効にした専用Chromeを開く。初回だけ、そのChromeでXにログインする。普段使いのブラウザプロファイルは変更しない。`npm run relay` は `twitter-api-safe-relay` をローカルホストだけで起動し、CDPで専用Chromeへ接続する。収集処理は、最初のリスト応答から現在のAPIパラメータを検出し、その後のページネーションをrelay経由で行う。
+`npm run browser` はリモートデバッグを有効にした専用Chromeを開く。初回だけ、そのChromeでXにログインする。普段使いのブラウザプロファイルは変更しない。収集処理は、最初のリスト応答から現在のAPIパラメータと認証ヘッダーを検出し、ログイン済みブラウザのコンテキストでページネーションする。
 
 収集結果は端末内の `.local/` にだけ保存し、すべてGit対象外にする。`.local/collections/` は日ごとの最新スナップショット、`.local/raw/YYYY/MM/DD/` は実行ごとの圧縮済み生データ、`.local/market-daily.duckdb` は検索・分析用のデータベースである。DuckDBでは投稿IDで重複を除きつつ、各投稿がどの収集実行で観測されたかも記録する。既存スナップショットは `npm run storage:backfill` で取り込める。
 
@@ -45,7 +44,7 @@ GitHubリポジトリの Settings → Pages → Source を GitHub Actions に設
 ## 復旧
 
 - 認証切れ: `npm run login` を再実行。
-- Chromeまたはrelayの停止: `npm run browser`、続いて別のターミナルで `npm run relay` を実行。
+- Chromeの停止: `npm run browser` を実行。
 - 内部API形式変更: エラーで停止する。取得なしを「話題なし」と解釈しない。
 - 収集ロック: 実行中プロセスがないことを確認してから `.local/collector.lock` を削除。
 - 同じ日の再実行: 最新スナップショットは置換し、圧縮済み生データとDuckDBの収集履歴は保持する。既存記事・PRは確認してから編集。
