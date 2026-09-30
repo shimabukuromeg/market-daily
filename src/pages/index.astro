@@ -3,22 +3,26 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { editions, sitePath } from '../lib/issues';
+
+const [latest, ...pastIssues] = editions;
+const formatDate = (date: string) =>
+  new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }).format(
+    new Date(`${date}T00:00:00+09:00`),
+  );
 ---
 
 <BaseLayout>
   <main>
     <SiteHeader />
     <section class="archive" aria-labelledby="archive-title">
-      <div class="archive-heading">
-        <div>
-          <span class="edition">DAILY MARKET BRIEFING</span>
-          <h1 id="archive-title">市場を追う、毎日の投資メモ</h1>
-          <p class="archive-description">
-            Xで選んだ発信者の投稿から、投資アイデアと確認条件を整理します。
-          </p>
+      <header class="archive-heading">
+        <span class="edition">Independent market intelligence / Tokyo</span>
+        <h1 id="archive-title">ノイズを削り、<br /><em>次の一手</em>を読む。</h1>
+        <div class="archive-intro">
+          <p class="archive-description">Xで選んだ発信者の投稿から、投資アイデアと確認条件を毎朝整理します。</p>
+          <p class="issue-count"><b>{editions.length}</b> issues published</p>
         </div>
-        <p class="issue-count">{editions.length}号</p>
-      </div>
+      </header>
       {
         editions.length === 0 ? (
           <div class="empty">
@@ -27,21 +31,34 @@ import { editions, sitePath } from '../lib/issues';
           </div>
         ) : (
           <div class="issue-list">
-            {editions.map((issue, index) => (
-              <a class="issue-card" href={sitePath(`${issue.date}/`)}>
+            {latest && (
+              <a class="issue-card issue-card-featured" href={sitePath(`${latest.date}/`)}>
                 <div class="issue-card-meta">
-                  <time datetime={issue.date}>{issue.date}</time>
-                  <span>
-                    {index === 0
-                      ? '最新号'
-                      : `${issue.posts.toLocaleString('ja-JP')}件`}
-                  </span>
+                  <span>Latest issue</span>
+                  <time datetime={latest.date}>{formatDate(latest.date)}</time>
                 </div>
-                <h2>{issue.title}</h2>
-                <p>{issue.summary}</p>
-                <span class="read-more">読む →</span>
+                <div class="featured-number" aria-hidden="true">{latest.date.slice(-2)}</div>
+                <div class="featured-copy">
+                  <h2>{latest.title}</h2>
+                  <p>{latest.summary}</p>
+                  <span class="read-more">最新号を読む <i>↗</i></span>
+                </div>
               </a>
-            ))}
+            )}
+            {pastIssues.length > 0 && <h2 class="archive-label">Previous issues</h2>}
+            <div class="issue-grid">
+              {pastIssues.map((issue) => (
+                <a class="issue-card" href={sitePath(`${issue.date}/`)}>
+                  <div class="issue-card-meta">
+                    <time datetime={issue.date}>{formatDate(issue.date)}</time>
+                    <span>{issue.posts.toLocaleString('ja-JP')} posts</span>
+                  </div>
+                  <h2>{issue.title}</h2>
+                  <p>{issue.summary}</p>
+                  <span class="read-more">読む <i>→</i></span>
+                </a>
+              ))}
+            </div>
           </div>
         )
       }
