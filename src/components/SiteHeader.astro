@@ -4,11 +4,14 @@ import { sitePath } from '../lib/issues';
 
 <header class="masthead">
   <a class="site-title" href={sitePath()}>
-    <strong>Market Daily</strong>
-    <span>株の観測日誌</span>
+    <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="brand-copy">
+      <strong>Market Daily</strong>
+      <span>株の観測日誌</span>
+    </span>
   </a>
   <nav aria-label="サイト内ナビゲーション">
-    <a href={sitePath()}>記事一覧</a>
-    <a href="https://github.com/shimabukuromeg/market-daily">GitHub</a>
+    <a href={sitePath()}>Archive</a>
+    <a href="https://github.com/shimabukuromeg/market-daily">About ↗</a>
   </nav>
 </header>
