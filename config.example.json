@@ -2,6 +2,7 @@
   "listId": "SET_ON_THIS_DEVICE",
   "timezone": "Asia/Tokyo",
   "cdpEndpoint": "http://127.0.0.1:9222",
+  "browserProfile": ".local/x-profile",
   "repository": "shimabukuromeg/market-daily",
   "maxPages": 100
 }

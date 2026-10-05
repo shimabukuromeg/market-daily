@@ -19,7 +19,7 @@ npm run browser
 npm run collect -- 2026-09-27
 ```
 
-`npm run browser` はリモートデバッグを有効にした専用Chromeを開く。初回だけ、そのChromeでXにログインする。普段使いのブラウザプロファイルは変更しない。収集処理は、最初のリスト応答から現在のAPIパラメータと認証ヘッダーを検出し、ログイン済みブラウザのコンテキストでページネーションする。
+`npm run browser` はリモートデバッグを有効にした専用Chromeを開く。初回だけ、そのChromeでXにログインする。普段使いのブラウザプロファイルは変更しない。閲覧専用アカウントへ切り替える場合は、`.local/config.json` の `browserProfile` と `cdpEndpoint` を別の値にして新しいChromeプロファイルを起動する。収集処理は、最初のリスト応答から現在のAPIパラメータと認証ヘッダーを検出し、ログイン済みブラウザのコンテキストでページネーションする。
 
 収集結果は端末内の `.local/` にだけ保存し、すべてGit対象外にする。`.local/collections/` は日ごとの最新スナップショット、`.local/raw/YYYY/MM/DD/` は実行ごとの圧縮済み生データ、`.local/market-daily.duckdb` は検索・分析用のデータベースである。DuckDBでは投稿IDで重複を除きつつ、各投稿がどの収集実行で観測されたかも記録する。既存スナップショットは `npm run storage:backfill` で取り込める。
 
