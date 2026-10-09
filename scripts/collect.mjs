@@ -93,6 +93,11 @@ try {
   const stored=await persistCollection(payload,{localDir:local});
   console.log(JSON.stringify({date,posts:posts.length,coverage,reason,pages,path:target,rawPath:stored.rawPath,dbPath:stored.dbPath}));
   if(coverage==='partial')process.exitCode=2;
+} catch {
+  // Playwright request errors can contain the full request headers, including
+  // the logged-in X session cookie. Never print the original error or stack.
+  console.error('Collection failed before completion. Check Chrome, X login, and network connectivity.');
+  process.exitCode=1;
 } finally {
   await rm(resolve(local,'collector.lock'),{recursive:true,force:true});
 }
