@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { decisionTypes } from '../lib/decision-types';
+import { renderRichText, renderBreadcrumbs } from '../lib/base-surfaces';
+import { sitePath } from '../lib/issues';
+const breadcrumbs = renderBreadcrumbs(sitePath(), '判断の型');
+const title = renderRichText('h1', '判断の型とは');
+const intro = renderRichText('p', '「判断の型」は、買う理由を整理するための分類です。買う前に、期待どおりに進んだ場合の利確条件と、見立てが外れた場合の損切り条件をセットで決めます。');
+const notes = renderRichText('p', '買う理由と売る理由には、同じ型を使います。反発狙いなら株価の戻りや下落で、業績なら成長の実現や前提の崩れで判断します。含み損になってから、短期の反発狙いを長期保有へ変えるなど、理由をすり替えないことが基本です。');
+const heading = (text: string, id: string) => renderRichText('h2', text, id);
+const paragraph = (text: string) => renderRichText('p', text);
+---
+<BaseLayout title="判断の型とは | Market Daily" description="業績・テーマ・急落反発など、記事で使う7つの判断の型と確認する材料を説明します。">
+  <main id="main-content" tabindex="-1">
+    <SiteHeader />
+    <div class="back-link"><style is:inline set:html={breadcrumbs.css}/><Fragment set:html={breadcrumbs.html}/></div>
+    <article class="decision-guide">
+      <style is:inline set:html={title.css + intro.css + notes.css}/>
+      <Fragment set:html={title.html}/><Fragment set:html={intro.html}/><Fragment set:html={notes.html}/>
+      <p>型は買う根拠、「監視」「買い候補」「情報不足」は現在の判定です。複数の型を使う場合も、どの根拠に対応する出口なのかを明示します。以下は考え方の説明で、具体的な価格・指標・期限は各記事で設定します。</p>
+      <p>参照：<a href="https://memo.shimabukuromeg.dev/memos/38869a050b3b815d951afaa563fd8532/">株の出口戦略と買いの理由のパターン</a></p>
+      <nav aria-label="判断の型の一覧"><ul>{decisionTypes.map(type => <li><a href={`#${type.id}`}>{type.name}</a></li>)}</ul></nav>
+      {decisionTypes.map(type => {
+        const surfaces = [heading(type.name, type.id), paragraph(type.summary), paragraph(`<strong>買う理由：</strong>${type.description}`), paragraph(`<strong>確認する材料：</strong>${type.check}`), paragraph(`<strong>利確条件：</strong>${type.takeProfit}`), paragraph(`<strong>損切り条件：</strong>${type.stopLoss}`)];
+        return <section aria-labelledby={type.id}>{surfaces.map(surface => <><style is:inline set:html={surface.css}/><Fragment set:html={surface.html}/></>)}</section>;
+      })}
+      <p><a href={sitePath()}>記事一覧へ戻る</a> · 読んでいた記事へはブラウザの「戻る」で戻れます。</p>
+    </article>
+    <SiteFooter />
+  </main>
+</BaseLayout>
+<style>
+  .decision-guide { max-width: 720px; }
+  nav { margin: var(--base-space-scale800) 0; }
+  nav ul { display: flex; flex-wrap: wrap; gap: var(--base-space-scale500) var(--base-space-scale800); list-style: none; padding: 0; }
+  section { border-top: 1px solid var(--line); padding: var(--base-space-scale800) 0; }
+</style>

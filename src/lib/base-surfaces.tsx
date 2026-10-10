@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { BaseProvider } from 'baseui';
+import { ThemeProvider } from 'baseui/styles';
 import {
   HeaderNavigation,
   StyledNavigationList,
@@ -31,11 +32,11 @@ import { sitePath } from './issues';
 
 // Non-interactive official components are emitted as HTML + Styletron CSS.
 // Distinct prefixes isolate static sheets from one another and the client island.
-export function renderSurface(prefix: string, content: ReactNode) {
+export function renderSurface(prefix: string, content: ReactNode, inline = false) {
   const engine = new Server({ prefix });
   const html = renderToStaticMarkup(
     <Provider value={engine}>
-      <BaseProvider theme={baseTheme}>{content}</BaseProvider>
+      {inline ? <ThemeProvider theme={baseTheme}>{content}</ThemeProvider> : <BaseProvider theme={baseTheme}>{content}</BaseProvider>}
     </Provider>,
   );
   return {
@@ -416,5 +417,16 @@ export function renderArchiveReset() {
     <Button kind={KIND.tertiary} size={SIZE.compact} id="archive-reset">
       絞り込みを解除
     </Button>,
+  );
+}
+
+export function renderDecisionTypeLink(label: string, href: string) {
+  return renderSurface(
+    'md-decision-type-',
+    <StyledLink href={href} aria-label={`${label}の判断方法を読む`}
+      $style={{ ':focus-visible': { outline: `2px solid ${baseTheme.colors.borderAccent}`, outlineOffset: baseTheme.sizing.scale100 } }}>
+      {label} <span aria-hidden="true">ⓘ</span>
+    </StyledLink>,
+    true,
   );
 }

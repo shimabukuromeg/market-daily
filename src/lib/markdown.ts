@@ -1,6 +1,9 @@
+import { decisionTypes } from './decision-types';
+import { sitePath } from './issues';
 import { Marked, Renderer } from 'marked';
 import {
   renderMetrics,
+  renderDecisionTypeLink,
   renderRichText,
   renderThemeTable,
   surfaceMarkup,
@@ -81,16 +84,24 @@ export function renderMarkdownWithHeadings(source: string) {
     return `<h${depth}>${html}</h${depth}>`;
   };
   renderer.paragraph = function ({ tokens }) {
-    const html = this.parser.parseInline(tokens);
+    const originalHtml = this.parser.parseInline(tokens);
+    const html = originalHtml.replace(/<strong>型[：:]([^<]+)<\/strong>/g, (_match, label: string) => {
+      const names = label.trim().split(/(＋|、または|、|または)/);
+      const links = names.map(name => {
+        const type = decisionTypes.find(type => type.name === name.trim());
+        return type ? surfaceMarkup(renderDecisionTypeLink(type.name, sitePath(`decision-types/#${type.id}`))) : escape(name);
+      }).join('');
+      return `<strong>判断の型：${links}</strong>`;
+    });
     const paragraph = surfaceMarkup(renderRichText('p', html));
-    return html.includes('<strong>現在の判定：') &&
-      html.includes('<strong>型：')
+    return originalHtml.includes('<strong>現在の判定：') &&
+      originalHtml.includes('<strong>型：')
       ? `<div class="analysis-meta">${paragraph.replace(/<\/strong>[\s　]*<strong>/g, '</strong><strong>')}</div>`
       : paragraph;
   };
   renderer.list = function (token) {
     const html = Renderer.prototype.list.call(this, token);
-    const labels = /^(仮説|買う条件|利確条件|損切り条件|次の行動)$/;
+    const labels = /^(取り上げた理由|仮説|買う条件|利確条件|損切り条件|次の行動)$/;
     const isConditions =
       !token.ordered &&
       token.items.length >= 3 &&

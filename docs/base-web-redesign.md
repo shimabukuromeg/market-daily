@@ -102,3 +102,21 @@ Stopping reason: the requested maximum of three iterations was reached and gains
 Motion uses installed Base Web timing200 (200ms), timing150 (150ms), and easeOutQuinticCurve. Official Accordion transitions use public Content, ContentAnimationContainer and ToggleIcon overrides with no added delay. Native theme, TOC and table disclosures progressively animate height when the browser supports interpolate-size and discrete transitions; other browsers retain instant native disclosure. X iframe previews retain native opening to avoid animating a changing external layout.
 
 Theme-selection and reset feedback use a 200ms opacity/2px movement after immediate result updates, with no delay in accessibility status or interaction. Keyword typing does not trigger repeated animation. Superseded feedback is cancelled. A reduced-motion preference skips feedback, cancels feedback already running, and removes disclosure/TOC/selection transitions. There is no number counting, scroll-triggered content hiding, or initial article entrance.
+
+## 判断の型の説明（2026-10-11）
+
+記事の「型：業績」を「判断の型：業績 ⓘ」へ変更。型名を押すと `/decision-types/` の該当説明へ移動する。業績＋テーマなどの併記はそれぞれをリンクにした。分類・本文の意味は保持し、説明の定義は `src/lib/decision-types.ts` にまとめた。
+
+採用部品は Base Web 18.2.0 の StyledLink と Typography。公式 Link ドキュメント（https://baseweb.design/components/link/）と導入版の `baseui/link` のAPI・スタイルを確認した。リンクは静的描画し、JavaScriptを追加しない。インラインのリンクは公開ThemeProviderでテーマを接続し、BaseProviderのブロック要素が段落に入り込むことを避ける。説明ページは通常のsectionとnavで構成し、余白・境界・フォーカスは既存トークンを使う。
+
+内部評価は影響箇所だけを対象とする主観的な5軸評価（情報階層／文字／操作／独自性／システム整合）。開始は5／7／3／5／8、平均5.6。レビュー1回で説明導線とページを追加し、表示時に見つかったラベルとリンクの改行を修正して再確認した。最終は8／8／8／6／9、平均7.8。説明への移動と型の識別は改善したが、別ページに移動する手間は残る。追加の全面改修の効果は小さいため1回で終了。
+
+本番ビルドで記事と説明ページ、複数型の旧号を確認。1280／768／390／320pxで確認した画面に横はみ出しなし。Enterによる説明への移動、フォーカス表示を確認。新規アニメーションはない。hoverの実機確認、動きを減らす設定の実機検証は未実施。check・変更箇所oxlint・build・verify:ui成功。クライアントバンドルのファイル名・サイズは変更前と同じ。説明ページはハイドレーションなし。既存の売買条件レイアウトにも「取り上げた理由」を追加した。
+
+最終画面：![判断の型の説明リンク](screenshots/decision-types.png)
+
+### 元メモとの再照合
+
+元メモ「株の出口戦略と買いの理由のパターン」をブラウザで再読し、7型の説明を買う理由・確認材料・利確条件・損切り条件に分けた。移動平均線反発は「平均線付近での反発」から「平均線を大きく下回った価格の戻り」へ訂正。業績型の利確は成長期待の織り込み、損切りは業績前提の崩れとして区別した。編集プロンプトにも成功時と失敗時の出口を別々に書く指示を追加した。説明ページ内に元メモへの参照リンクを設けた。文章のみの改訂で、追加のデザイン採点は実施していない。check・oxlint・build・verify:ui成功、実画面で両条件の表示を確認。
+
+![利確と損切りの説明](screenshots/decision-types-exits.png)
