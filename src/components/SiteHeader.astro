@@ -1,14 +1,9 @@
 ---
 import { sitePath } from '../lib/issues';
+import { renderHeader } from '../lib/base-surfaces';
+const surface = renderHeader(sitePath());
 ---
-
-<header class="masthead">
-  <a class="site-title" href={sitePath()}>
-    <span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span>
-    <span class="brand-name"><strong>Market Daily</strong><small>株の観測日誌</small></span>
-  </a>
-  <nav aria-label="サイト内ナビゲーション">
-    <a href={sitePath()}>記事一覧</a>
-    <a href="https://github.com/shimabukuromeg/market-daily">GitHub</a>
-  </nav>
+<header class="site-header">
+  <style is:inline set:html={surface.css} />
+  <Fragment set:html={surface.html} />
 </header>

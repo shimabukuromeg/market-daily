@@ -1,65 +1,56 @@
+/* Custom data/Markdown surfaces: official scales and semantic typography. */
 .prose blockquote {
   position: relative;
-  margin: 1.25rem 0 1.75rem;
-  padding: 2.7rem 1.3rem 1.15rem;
+  margin: var(--base-space-scale800) 0 var(--base-space-scale900);
+  padding: var(--base-space-scale1200) var(--base-space-scale800)
+    var(--base-space-scale600);
   border: 1px solid var(--line);
   border-left: 4px solid var(--foreground);
-  border-radius: 12px;
-  background: #f7f9fc;
+  border-radius: var(--base-radius-radius400);
+  background: var(--base-color-backgroundSecondary);
   color: var(--foreground);
-  box-shadow: 0 8px 24px rgba(23, 35, 51, 0.06);
 }
-
 .prose blockquote::before {
   content: 'X POST PREVIEW';
   position: absolute;
-  top: 0.9rem;
-  left: 1.3rem;
-  color: var(--accent);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  line-height: 1;
+  top: var(--base-space-scale600);
+  left: var(--base-space-scale800);
+  color: var(--base-color-contentSecondary);
+  font-size: var(--base-type-LabelXSmall-fontSize);
+  font-weight: var(--base-type-LabelXSmall-fontWeight);
+  line-height: var(--base-type-LabelXSmall-lineHeight);
 }
-
 .prose blockquote p {
-  margin: 0.55rem 0;
+  margin: var(--base-space-scale300) 0;
 }
 .prose blockquote p:first-child {
   margin-top: 0;
-  font-size: 0.9rem;
-}
-.prose blockquote p:nth-child(2) {
-  font-size: 1.05rem;
-  line-height: 1.8;
 }
 .prose blockquote p:last-child {
   margin-bottom: 0;
-  padding-top: 0.35rem;
+  padding-top: var(--base-space-scale300);
   border-top: 1px solid var(--line);
-  font-size: 0.85rem;
 }
-.prose blockquote a {
-  font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif;
-  font-weight: 600;
+.prose blockquote p:first-child,
+.prose blockquote p:last-child {
+  font-size: var(--base-type-ParagraphSmall-fontSize);
 }
-
 .prose .twitter-tweet-rendered {
-  margin: 1.25rem auto 1.75rem !important;
+  margin: var(--base-space-scale800) auto var(--base-space-scale900) !important;
 }
-
 .x-posts {
   width: min(550px, 100%);
-  margin: 2rem auto 2.75rem;
-  padding-top: 0.5rem;
+  margin: var(--base-space-scale900) auto var(--base-space-scale1200);
+  padding-top: var(--base-space-scale300);
   border-top: 1px solid var(--line);
 }
 .x-posts h3 {
-  margin: 0.5rem 0 1rem;
-  font-size: 1rem;
+  margin: var(--base-space-scale300) 0 var(--base-space-scale600);
+  font-size: var(--base-type-HeadingXSmall-fontSize);
+  line-height: var(--base-type-HeadingXSmall-lineHeight);
 }
 .x-posts details {
-  margin-top: 0.75rem;
+  margin-top: var(--base-space-scale500);
 }
 .x-posts > .twitter-tweet-rendered,
 .x-posts > blockquote {
@@ -69,118 +60,122 @@
 }
 .x-posts summary {
   cursor: pointer;
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--foreground);
+  font-weight: var(--base-type-LabelMedium-fontWeight);
 }
 .x-posts summary:hover {
   text-decoration: underline;
 }
 .x-posts details[open] summary {
-  margin-bottom: 1rem;
+  margin-bottom: var(--base-space-scale600);
 }
-
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin: 1.75rem 0 2.5rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--base-space-scale500);
+  margin: var(--base-space-scale900) 0 var(--base-space-scale1000);
 }
-.metrics div {
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #f7f9fc;
-}
-.metrics dt {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 700;
+/* A semantic definition list, with official Typography metrics unchanged. */
+.metrics > div {
+  padding: var(--base-space-scale600) 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
 }
 .metrics dd {
-  margin: 0.2rem 0 0;
-  color: var(--foreground);
-  font-size: 1.7rem;
-  font-weight: 800;
-  line-height: 1.2;
+  margin: var(--base-space-scale300) 0 0;
 }
 .theme-chart {
-  margin: 1.75rem 0 2.5rem;
-  padding: 1.35rem;
+  margin: var(--base-space-scale900) 0 var(--base-space-scale1000);
+  padding: var(--base-space-scale800);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--base-radius-radius400);
 }
 .theme-chart figcaption {
-  font-weight: 800;
+  font-size: var(--base-type-LabelMedium-fontSize);
+  font-weight: var(--base-type-LabelMedium-fontWeight);
+  line-height: var(--base-type-LabelMedium-lineHeight);
 }
-.chart-legend {
-  display: flex;
-  gap: 1.25rem;
-  margin: 0.4rem 0 1rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-.chart-legend span::before {
-  content: '';
-  display: inline-block;
-  width: 0.7rem;
-  height: 0.7rem;
-  margin-right: 0.35rem;
-  border-radius: 2px;
-}
-.posts-key::before,
-.posts-bar {
-  background: var(--accent);
-}
-.authors-key::before,
-.authors-bar {
-  background: #8292a6;
-}
-.chart-row {
+.chart-series-grid {
   display: grid;
-  grid-template-columns: 8rem 1fr 1fr;
-  gap: 0.65rem;
-  align-items: center;
-  margin: 0.65rem 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--base-space-scale800);
+  margin-top: var(--base-space-scale700);
 }
-.chart-row strong {
-  font-size: 0.8rem;
-}
-.chart-bar {
+.chart-series {
   min-width: 0;
-  background: #edf0f4;
-  border-radius: 4px;
-  overflow: hidden;
 }
-.chart-bar span {
+.chart-series h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 var(--base-space-scale600);
+  font-size: var(--base-type-LabelMedium-fontSize);
+  line-height: var(--base-type-LabelMedium-lineHeight);
+  font-weight: var(--base-type-LabelMedium-fontWeight);
+}
+.chart-series h3 span {
+  color: var(--muted);
+  font-weight: normal;
+}
+.chart-series ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.series-row {
+  margin: 0 0 var(--base-space-scale600);
+}
+.series-label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--base-space-scale300);
+  margin-bottom: var(--base-space-scale200);
+  font-size: var(--base-type-LabelSmall-fontSize);
+  line-height: var(--base-type-LabelSmall-lineHeight);
+}
+.series-label b {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.series-track {
+  height: 8px;
+  background: var(--base-color-backgroundSecondary);
+}
+.series-track > span {
   display: block;
-  min-width: 2rem;
-  padding: 0.08rem 0.4rem;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 800;
-  line-height: 1.5;
-  text-align: right;
-  border-radius: 4px;
+  height: 100%;
+}
+.posts-bar {
+  background: var(--base-color-backgroundAccent);
+}
+.authors-bar {
+  background: var(--base-color-contentTertiary);
 }
 .theme-chart > p {
-  margin: 1rem 0 0;
+  margin: var(--base-space-scale600) 0 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--base-type-ParagraphXSmall-fontSize);
 }
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .metrics {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .chart-row {
+}
+@media (max-width: 600px) {
+  .chart-series-grid {
     grid-template-columns: 1fr;
-    gap: 0.25rem;
-    margin: 1rem 0;
+  }
+  .chart-series + .chart-series {
+    padding-top: var(--base-space-scale700);
+    border-top: 1px solid var(--line);
+  }
+  .theme-chart {
+    padding: var(--base-space-scale600);
   }
   .prose blockquote {
-    padding: 2.6rem 1rem 1rem;
+    padding: var(--base-space-scale1200) var(--base-space-scale600)
+      var(--base-space-scale600);
   }
   .prose blockquote::before {
-    left: 1rem;
+    left: var(--base-space-scale600);
   }
 }
