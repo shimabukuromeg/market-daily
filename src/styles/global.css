@@ -1391,3 +1391,41 @@ article {
     animation-duration: 0ms !important;
   }
 }
+
+/* Native disclosure preserves static reading; controls use Base Web Buttons. */
+.topic-ai {
+  margin-block: var(--base-space-scale500);
+  border: 1px solid var(--base-color-borderOpaque);
+  border-radius: var(--base-radius-radius200);
+}
+.topic-ai > summary {
+  padding: var(--base-space-scale500);
+  cursor: pointer;
+  font-weight: 700;
+}
+.topic-ai-content {
+  padding: 0 var(--base-space-scale500) var(--base-space-scale500);
+}
+.topic-ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--base-space-scale300);
+}
+.topic-ai-prompt {
+  margin-top: var(--base-space-scale500);
+}
+.topic-ai-prompt summary {
+  cursor: pointer;
+}
+.topic-ai-prompt label {
+  display: block;
+  margin-block: var(--base-space-scale300);
+}
+.topic-ai-status {
+  display: block;
+  margin-top: var(--base-space-scale300);
+}
+
+.topic-ai-content > p {
+  margin-block: 0 var(--base-space-scale500);
+}

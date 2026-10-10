@@ -28,6 +28,54 @@ for (const issue of issues) {
       `${issue.date}: TOC target ${index}`,
     );
   }
+  const topicSections = [];
+  for (const token of Lexer.lex(issue.markdown)) {
+    if (token.type === 'heading' && token.depth === 2) topicSections.push('');
+    if (topicSections.length)
+      topicSections[topicSections.length - 1] += token.raw;
+  }
+  const decodeText = (text) =>
+    text.replace(
+      /&(amp|lt|gt|quot|#x27|#39);/g,
+      (_all, key) =>
+        ({ amp: '&', lt: '<', gt: '>', quot: '"', '#x27': "'", '#39': "'" })[
+          key
+        ],
+    );
+  const prompts = [
+    ...html.matchAll(
+      /<textarea[^>]*id="ai-prompt-section-(\d+)"[^>]*>([\s\S]*?)<\/textarea>/g,
+    ),
+  ];
+  const expected = topicSections.filter((section) =>
+    /\*\*株価[：:]\*\*/.test(section),
+  ).length;
+  assert.equal(
+    prompts.length,
+    expected,
+    `${issue.date}: AI action for every stock topic`,
+  );
+  for (const [, index, encoded] of prompts) {
+    const prompt = decodeText(encoded);
+    assert.ok(
+      prompt.endsWith(topicSections[Number(index) - 1].trim()),
+      `${issue.date}: complete section including sources`,
+    );
+    assert.ok(prompt.includes(`観測日：${issue.date}`));
+    assert.ok(prompt.includes(`#section-${index}`));
+    for (const provider of [
+      'https://chatgpt.com/?q=',
+      'https://claude.ai/new?q=',
+    ]) {
+      const link = provider + encodeURIComponent(prompt);
+      assert.ok(
+        html.includes(
+          `href="${link.length <= 12000 ? link : provider.split('?')[0]}"`,
+        ),
+        `${issue.date}: full prompt or long-text fallback`,
+      );
+    }
+  }
   const conditionLists = Lexer.lex(issue.markdown).filter(
     (token) =>
       token.type === 'list' &&
@@ -88,9 +136,18 @@ for (const issue of issues) {
   const labels = issue.markdown.match(/\*\*型[：:]/g) ?? [];
   assert.ok(links.length >= labels.length, `${issue.date}: type explanations`);
   for (const [, anchor] of links) {
-    assert.ok(guide.includes(`id="${anchor}"`), `${issue.date}: guide target ${anchor}`);
+    assert.ok(
+      guide.includes(`id="${anchor}"`),
+      `${issue.date}: guide target ${anchor}`,
+    );
     typeLinks++;
   }
 }
-assert.equal((guide.match(/<h1(?:\s|>)/g) ?? []).length, 1, 'guide: one page heading');
-console.log(`Verified ${typeLinks} decision type links and their guide targets.`);
+assert.equal(
+  (guide.match(/<h1(?:\s|>)/g) ?? []).length,
+  1,
+  'guide: one page heading',
+);
+console.log(
+  `Verified ${typeLinks} decision type links and their guide targets.`,
+);
