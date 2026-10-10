@@ -2,7 +2,9 @@ import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import { createRequire } from 'node:module';
-const { LightTheme: { colors, borders } } = createRequire(import.meta.url)('baseui');
+const {
+  LightTheme: { colors, typography, sizing },
+} = createRequire(import.meta.url)('baseui');
 const root = new URL('../public/og/', import.meta.url);
 const issues = JSON.parse(
   await readFile(
@@ -35,133 +37,134 @@ const fonts = [
 ];
 const style = (value) => ({ style: value });
 function paper({ date, title, summary, posts }) {
+  const space = (name) => Number.parseInt(sizing[name]);
+  const type = (name) => ({
+    fontSize: Number.parseInt(typography[name].fontSize),
+    fontWeight: typography[name].fontWeight,
+    lineHeight:
+      Number.parseInt(typography[name].lineHeight) /
+      Number.parseInt(typography[name].fontSize),
+  });
+  const titleType = posts
+    ? title.length > 60
+      ? 'DisplaySmall'
+      : 'DisplayMedium'
+    : 'DisplayLarge';
+  const logo = h(
+    'svg',
+    { width: 48, height: 48, viewBox: '0 0 48 48' },
+    h('rect', { width: 48, height: 48, rx: 4, fill: colors.contentPrimary }),
+    ...[12, 20, 28].map((height, index) =>
+      h('rect', {
+        x: 10 + index * 10,
+        y: 38 - height,
+        width: 6,
+        height,
+        fill: colors.backgroundPrimary,
+      }),
+    ),
+  );
   return h(
     'div',
     style({
       width: 1200,
       height: 630,
-      display: 'flex',
-      position: 'relative',
-      padding: 54,
-      background: colors.backgroundSecondary,
+      padding: space('scale1400'),
+      background: colors.backgroundPrimary,
       color: colors.contentPrimary,
       fontFamily: 'Noto Sans JP',
+      flexDirection: 'column',
     }),
     h(
       'div',
       style({
-        position: 'absolute',
-        width: 360,
-        height: 360,
-        right: -90,
-        top: -160,
-        borderRadius: 999,
-        background: colors.backgroundTertiary,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: space('scale800'),
+        borderBottom: `1px solid ${colors.borderOpaque}`,
       }),
+      h(
+        'div',
+        style({ alignItems: 'center', gap: space('scale500') }),
+        logo,
+        h(
+          'div',
+          style({ flexDirection: 'column' }),
+          h('span', style({ ...type('HeadingSmall') }), 'Market Daily'),
+          h(
+            'span',
+            style({
+              ...type('LabelSmall'),
+              color: colors.contentSecondary,
+              marginTop: 4,
+            }),
+            '株の観測日誌',
+          ),
+        ),
+      ),
+      h(
+        'span',
+        style({ ...type('LabelLarge'), color: colors.contentSecondary }),
+        date,
+      ),
     ),
     h(
       'div',
       style({
-        width: '100%',
-        height: '100%',
-        display: 'flex',
+        flex: 1,
+        justifyContent: 'center',
         flexDirection: 'column',
-        position: 'relative',
-        padding: '46px 56px 42px',
-        border: `2px solid ${colors.borderTransparent}`,
-        borderRadius: Number.parseInt(borders.radius400),
-        background: colors.backgroundPrimary,
-        boxShadow: 'none',
-        overflow: 'hidden',
+        padding: '24px 0',
       }),
       h(
         'div',
         style({
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 12,
-          background: colors.contentPrimary,
+          ...type(titleType),
+          letterSpacing: -1.5,
+          whiteSpace: 'pre-wrap',
         }),
+        title,
       ),
-      h(
-        'div',
-        style({
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          color: colors.contentPrimary,
-          fontSize: 23,
-          fontWeight: 700,
-          letterSpacing: 2,
-        }),
-        h('span', {}, 'MARKET DAILY'),
-        h('span', style({ color: colors.contentSecondary, letterSpacing: 0 }), date),
-      ),
-      h(
-        'div',
-        style({
-          display: 'flex',
-          flex: 1,
-          alignItems: 'center',
-          padding: '20px 0 18px',
-        }),
+      summary &&
         h(
           'div',
-          style({ display: 'flex', flexDirection: 'column', width: '100%' }),
-          h(
-            'div',
-            style({
-              fontSize: title.length > 34 ? 52 : 60,
-              fontWeight: 700,
-              lineHeight: 1.35,
-              letterSpacing: -2,
-            }),
-            title,
-          ),
-          summary &&
-            h(
-              'div',
-              style({
-                marginTop: 18,
-                color: colors.contentSecondary,
-                fontSize: 25,
-                lineHeight: 1.55,
-              }),
-              summary,
-            ),
+          style({
+            marginTop: space('scale700'),
+            fontSize: 24,
+            lineHeight: 1.6,
+            color: colors.contentSecondary,
+          }),
+          summary,
+        ),
+    ),
+    h(
+      'div',
+      style({
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTop: `1px solid ${colors.borderOpaque}`,
+        paddingTop: space('scale700'),
+        ...type('LabelMedium'),
+      }),
+      h(
+        'div',
+        style({ alignItems: 'center', gap: 12 }),
+        h(
+          'div',
+          style({ width: 8, height: 8, background: colors.backgroundAccent }),
+        ),
+        h(
+          'span',
+          {},
+          posts ? '話題を追う。買う条件を考える。' : 'MARKET DAILY / 観測日誌',
         ),
       ),
       h(
-        'div',
-        style({
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: 20,
-          borderTop: `2px solid ${colors.borderTransparent}`,
-          color: colors.contentSecondary,
-          fontSize: 21,
-        }),
-        h('span', {}, '選んだ発信者から、投資アイデアと確認条件を整理'),
+        'span',
+        style({ color: colors.contentSecondary }),
         posts
-          ? h(
-              'span',
-              style({
-                padding: '8px 18px',
-                borderRadius: 999,
-                background: colors.backgroundSecondary,
-                color: colors.contentPrimary,
-                fontWeight: 700,
-              }),
-              `${posts.toLocaleString('ja-JP')}件を収集`,
-            )
-          : h(
-              'span',
-              style({ color: colors.contentPrimary, fontWeight: 700 }),
-              '株の観測日誌',
-            ),
+          ? `収集投稿 ${posts.toLocaleString('ja-JP')}件`
+          : '出典と、次に確かめる数字。',
       ),
     ),
   );
@@ -175,9 +178,9 @@ async function generate(name, data) {
 }
 await generate('market-daily', {
   date: 'DAILY MARKET BRIEFING',
-  title: '市場を追う、毎日の投資メモ',
+  title: '話題を追う。\n買う条件を考える。',
   summary:
-    'Xの投稿から、投資アイデアと次に確認する数字を読みやすく整理します。',
+    '市場の話題を、出典から読み解く。次に確かめる数字まで整理する観測日誌。',
   posts: 0,
 });
 for (const issue of issues) await generate(issue.date, issue);
