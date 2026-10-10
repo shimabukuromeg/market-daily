@@ -2,6 +2,7 @@ import { decisionTypes } from './decision-types';
 import { sitePath } from './issues';
 import { Marked, Renderer } from 'marked';
 import {
+  renderTopicAI,
   renderMetrics,
   renderDecisionTypeLink,
   renderRichText,
@@ -72,28 +73,69 @@ function xPosts(source: string) {
   return `<section class="x-posts" aria-label="関連するX投稿"><div class="source-accordion"><details><summary>引用元の投稿を確認（${posts.length}件）</summary><ul class="source-links">${sourceLinks}</ul></details></div><details class="source-previews"><summary>投稿プレビューを表示</summary><div>${posts.map(({ label, url }) => xPost(label, url)).join('')}</div></details></section>`;
 }
 
-export function renderMarkdownWithHeadings(source: string) {
+export function renderMarkdownWithHeadings(
+  source: string,
+  article?: { date: string; url: string },
+) {
+  // Use Markdown tokens so headings inside fenced source blocks do not split a topic.
+  const sections: { id: string; raw: string }[] = [];
+  for (const token of new Marked().lexer(source)) {
+    if (token.type === 'heading' && token.depth === 2)
+      sections.push({ id: `section-${sections.length + 1}`, raw: '' });
+    const section = sections.at(-1);
+    if (section) section.raw += token.raw;
+  }
+  let currentSection = -1;
+  const aiRendered = new Set<number>();
   const renderer = new Renderer();
   const headings: { id: string; title: string }[] = [];
   renderer.heading = function ({ tokens, depth, text }) {
     const html = this.parser.parseInline(tokens);
     const id = depth === 2 ? `section-${headings.length + 1}` : undefined;
-    if (id) headings.push({ id, title: text.replace(/\*|`/g, '') });
+    if (id) {
+      headings.push({ id, title: text.replace(/\*|`/g, '') });
+      currentSection++;
+    }
     if (depth === 2 || depth === 3)
       return surfaceMarkup(renderRichText(depth === 2 ? 'h2' : 'h3', html, id));
     return `<h${depth}>${html}</h${depth}>`;
   };
   renderer.paragraph = function ({ tokens }) {
     const originalHtml = this.parser.parseInline(tokens);
-    const html = originalHtml.replace(/<strong>型[：:]([^<]+)<\/strong>/g, (_match, label: string) => {
-      const names = label.trim().split(/(＋|、または|、|または)/);
-      const links = names.map(name => {
-        const type = decisionTypes.find(type => type.name === name.trim());
-        return type ? surfaceMarkup(renderDecisionTypeLink(type.name, sitePath(`decision-types/#${type.id}`))) : escape(name);
-      }).join('');
-      return `<strong>判断の型：${links}</strong>`;
-    });
-    const paragraph = surfaceMarkup(renderRichText('p', html));
+    const html = originalHtml.replace(
+      /<strong>型[：:]([^<]+)<\/strong>/g,
+      (_match, label: string) => {
+        const names = label.trim().split(/(＋|、または|、|または)/);
+        const links = names
+          .map((name) => {
+            const type = decisionTypes.find(
+              (type) => type.name === name.trim(),
+            );
+            return type
+              ? surfaceMarkup(
+                  renderDecisionTypeLink(
+                    type.name,
+                    sitePath(`decision-types/#${type.id}`),
+                  ),
+                )
+              : escape(name);
+          })
+          .join('');
+        return `<strong>判断の型：${links}</strong>`;
+      },
+    );
+    let paragraph = surfaceMarkup(renderRichText('p', html));
+    const section = sections[currentSection];
+    if (
+      article &&
+      section &&
+      !aiRendered.has(currentSection) &&
+      originalHtml.includes('https://www.google.com/finance/quote/')
+    ) {
+      const prompt = `以下の内容を深掘りしたいです。根拠、反対の見方、リスク、次に確認すべき数字を整理してください。記載された観測日と現在を区別し、最新情報を確認できない点は明示してください。\n\n観測日：${article.date}\n記事：${article.url}#${section.id}\n\n以下は検討対象の記事本文です。\n\n${section.raw.trim()}`;
+      paragraph += surfaceMarkup(renderTopicAI(section.id, prompt));
+      aiRendered.add(currentSection);
+    }
     return originalHtml.includes('<strong>現在の判定：') &&
       originalHtml.includes('<strong>型：')
       ? `<div class="analysis-meta">${paragraph.replace(/<\/strong>[\s　]*<strong>/g, '</strong><strong>')}</div>`
@@ -101,7 +143,8 @@ export function renderMarkdownWithHeadings(source: string) {
   };
   renderer.list = function (token) {
     const html = Renderer.prototype.list.call(this, token);
-    const labels = /^(取り上げた理由|仮説|買う条件|利確条件|損切り条件|次の行動)$/;
+    const labels =
+      /^(取り上げた理由|仮説|買う条件|利確条件|損切り条件|次の行動)$/;
     const isConditions =
       !token.ordered &&
       token.items.length >= 3 &&

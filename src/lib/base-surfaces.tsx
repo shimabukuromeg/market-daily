@@ -25,6 +25,7 @@ import {
 import { Grid, Cell, BEHAVIOR } from 'baseui/layout-grid';
 import { Table, SIZE as TABLE_SIZE } from 'baseui/table-semantic';
 import { Input } from 'baseui/input';
+import { Textarea } from 'baseui/textarea';
 import { Provider } from 'styletron-react';
 import { Server } from 'styletron-engine-monolithic';
 import { baseTheme } from './base-theme';
@@ -32,11 +33,19 @@ import { sitePath } from './issues';
 
 // Non-interactive official components are emitted as HTML + Styletron CSS.
 // Distinct prefixes isolate static sheets from one another and the client island.
-export function renderSurface(prefix: string, content: ReactNode, inline = false) {
+export function renderSurface(
+  prefix: string,
+  content: ReactNode,
+  inline = false,
+) {
   const engine = new Server({ prefix });
   const html = renderToStaticMarkup(
     <Provider value={engine}>
-      {inline ? <ThemeProvider theme={baseTheme}>{content}</ThemeProvider> : <BaseProvider theme={baseTheme}>{content}</BaseProvider>}
+      {inline ? (
+        <ThemeProvider theme={baseTheme}>{content}</ThemeProvider>
+      ) : (
+        <BaseProvider theme={baseTheme}>{content}</BaseProvider>
+      )}
     </Provider>,
   );
   return {
@@ -423,10 +432,75 @@ export function renderArchiveReset() {
 export function renderDecisionTypeLink(label: string, href: string) {
   return renderSurface(
     'md-decision-type-',
-    <StyledLink href={href} aria-label={`${label}の判断方法を読む`}
-      $style={{ ':focus-visible': { outline: `2px solid ${baseTheme.colors.borderAccent}`, outlineOffset: baseTheme.sizing.scale100 } }}>
+    <StyledLink
+      href={href}
+      aria-label={`${label}の判断方法を読む`}
+      $style={{
+        ':focus-visible': {
+          outline: `2px solid ${baseTheme.colors.borderAccent}`,
+          outlineOffset: baseTheme.sizing.scale100,
+        },
+      }}
+    >
       {label} <span aria-hidden="true">ⓘ</span>
     </StyledLink>,
+    true,
+  );
+}
+
+export function renderTopicAI(id: string, prompt: string) {
+  const providers = [
+    ['ChatGPT', 'https://chatgpt.com/?q='],
+    ['Claude', 'https://claude.ai/new?q='],
+  ];
+  const links = providers.map(([name, base]) => ({
+    name,
+    base,
+    url: base + encodeURIComponent(prompt),
+  }));
+  const long = links.some((link) => link.url.length > 12000);
+  return renderSurface(
+    `md-ai-${id}-`,
+    <details className="topic-ai">
+      <summary>AIで深掘り</summary>
+      <div className="topic-ai-content">
+        <ParagraphSmall>
+          {long
+            ? '全文をコピーして、使うAIに貼り付けてください。'
+            : 'このトピックの全文を使うAIに渡します。初期入力されない場合は、コピーして貼り付けてください。'}
+        </ParagraphSmall>
+        <div className="topic-ai-actions">
+          {links.map(({ name, base, url }) => (
+            <Button
+              key={name}
+              $as="a"
+              href={long ? base.split('?')[0] : url}
+              target="_blank"
+              rel="noopener noreferrer"
+              kind={KIND.secondary}
+              size={SIZE.compact}
+            >
+              {name}で開く ↗
+            </Button>
+          ))}
+          <Button
+            size={SIZE.compact}
+            kind={KIND.tertiary}
+            overrides={{ BaseButton: { props: { 'data-copy-ai': true } } }}
+          >
+            質問全文をコピー
+          </Button>
+        </div>
+        <details className="topic-ai-prompt">
+          <summary>質問全文を確認</summary>
+          <label htmlFor={`ai-prompt-${id}`}>
+            コピーしてそのまま質問できます
+          </label>
+          <Textarea id={`ai-prompt-${id}`} readOnly value={prompt} rows={8} />
+        </details>
+        <output className="topic-ai-status" aria-live="polite" />
+      </div>
+    </details>,
     true,
   );
 }
