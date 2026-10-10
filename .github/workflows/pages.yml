@@ -23,6 +23,7 @@ jobs:
       - run: npm run build
         env:
           PAGES_BASE_PATH: /market-daily
+          PUBLIC_GA_MEASUREMENT_ID: ${{ github.ref == 'refs/heads/main' && vars.PUBLIC_GA_MEASUREMENT_ID || '' }}
       - uses: actions/upload-pages-artifact@v4
         if: github.ref == 'refs/heads/main'
         with:
