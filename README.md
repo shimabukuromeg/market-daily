@@ -41,6 +41,8 @@ npm run dev
 
 GitHubリポジトリの Settings → Pages → Source を GitHub Actions に設定する。Actionsの `pages` が静的サイトを公開する。サイトの表示と記事は公開、XログインとCodexの実行環境はこの端末に残る。
 
+新しい号の通知を受け取るには、[RSSフィード](https://shimabukuromeg.github.io/market-daily/rss.xml)をRSSリーダーに登録する。号が公開されるとフィードにタイトル・要約・記事URLが追加される。Xの非公開リストや収集した生データは含まれない。
+
 ## 復旧
 
 - 認証切れ: `npm run login` を再実行。
