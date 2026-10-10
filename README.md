@@ -8,7 +8,7 @@ Xで選んだ発信者の投稿を収集し、Codexで日刊ニュースレタ�
 
 ## この端末で使う
 
-Node.js 22.13以上、Chrome、GitHub CLIへのログインが必要。
+Node.js 24以上、Chrome、GitHub CLIへのログインが必要。
 
 ```sh
 npm ci

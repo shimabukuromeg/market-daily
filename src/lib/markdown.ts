@@ -1,4 +1,10 @@
 import { Marked, Renderer } from 'marked';
+import {
+  renderMetrics,
+  renderRichText,
+  renderThemeTable,
+  surfaceMarkup,
+} from './base-surfaces';
 
 const escape = (value: string) =>
   value.replace(
@@ -17,13 +23,7 @@ function rows(source: string) {
 }
 
 function metrics(source: string) {
-  return `<dl class="metrics" aria-label="収集データの概要">${rows(source)
-    .filter(([label, value]) => label && value)
-    .map(
-      ([label, value]) =>
-        `<div><dt>${escape(label)}</dt><dd>${escape(value)}</dd></div>`,
-    )
-    .join('')}</dl>`;
+  return surfaceMarkup(renderMetrics(rows(source)));
 }
 
 function themeChart(source: string) {
@@ -37,20 +37,13 @@ function themeChart(source: string) {
       ({ label, posts, authors }) =>
         label && Number.isFinite(posts) && Number.isFinite(authors),
     );
-  const maxPosts = Math.max(...data.map(({ posts }) => posts), 1);
-  const maxAuthors = Math.max(...data.map(({ authors }) => authors), 1);
-  const bars = data
-    .map(
-      ({ label, posts, authors }) => `<div class="chart-row">
-        <strong>${escape(label)}</strong>
-        <div class="chart-bar"><span class="posts-bar" style="width:${(posts / maxPosts) * 100}%">${posts}</span></div>
-        <div class="chart-bar"><span class="authors-bar" style="width:${(authors / maxAuthors) * 100}%">${authors}</span></div>
-      </div>`,
-    )
-    .join('');
+  const series = (key: 'posts' | 'authors', title: string, unit: string) => {
+    const maximum = Math.max(...data.map((row) => row[key]), 1);
+    return `<section class="chart-series" aria-label="テーマ別${title}"><h3>${title}<span>${unit}</span></h3><ol>${data.map((row) => `<li class="series-row"><div class="series-label"><span>${escape(row.label)}</span><b>${row[key]}${unit}</b></div><div class="series-track" aria-hidden="true"><span class="${key}-bar" style="width:${(row[key] / maximum) * 100}%"></span></div></li>`).join('')}</ol></section>`;
+  };
   return `<figure class="theme-chart"><figcaption>テーマ別の投稿数と投稿者数</figcaption>
-    <div class="chart-legend"><span class="posts-key">投稿数</span><span class="authors-key">投稿者数</span></div>
-    ${bars}<p>各系列は最大値を100%として表示。テーマは重複分類です。</p></figure>`;
+    <div class="chart-series-grid">${series('posts', '投稿数', '件')}${series('authors', '投稿者数', '人')}</div>
+    <p>テーマは重複分類です。同じ投稿・投稿者を複数のテーマに含みます。棒の長さは各列の最大値を基準にしています。</p><details class="chart-data"><summary>集計値を表で確認</summary>${surfaceMarkup(renderThemeTable(data))}</details></figure>`;
 }
 
 function xPost(label: string, url: string) {
@@ -67,33 +60,75 @@ function xPosts(source: string) {
       /^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/.test(url),
     );
   if (!posts.length) return '';
-  const primary = posts
-    .slice(0, 2)
-    .map(({ label, url }) => xPost(label, url))
+  const sourceLinks = posts
+    .map(
+      ({ label, url }) =>
+        `<li><a href="${escape(url)}" target="_blank" rel="noopener noreferrer"><span>${escape(label)}</span><span aria-hidden="true">↗</span></a></li>`,
+    )
     .join('');
-  const more =
-    posts.length > 2
-      ? `<details><summary>ほかの投稿を見る（${posts.length - 2}件）</summary><div>${posts
-          .slice(2)
-          .map(({ label, url }) => xPost(label, url))
-          .join('')}</div></details>`
-      : '';
-  return `<section class="x-posts" aria-label="関連するX投稿"><h3>関連するX投稿</h3><div class="x-posts-primary">${primary}</div>${more}</section>`;
+  return `<section class="x-posts" aria-label="関連するX投稿"><div class="source-accordion"><details><summary>引用元の投稿を確認（${posts.length}件）</summary><ul class="source-links">${sourceLinks}</ul></details></div><details class="source-previews"><summary>投稿プレビューを表示</summary><div>${posts.map(({ label, url }) => xPost(label, url)).join('')}</div></details></section>`;
 }
 
-const renderer = new Renderer();
-renderer.code = ({ text, lang }) => {
-  if (lang === 'metrics') return metrics(text);
-  if (lang === 'theme-chart') return themeChart(text);
-  if (lang === 'x-posts') return xPosts(text);
-  const language = lang ? ` class="language-${escape(lang)}"` : '';
-  return `<pre><code${language}>${escape(text)}</code></pre>`;
-};
-renderer.blockquote = ({ tokens }) =>
-  `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light">${renderer.parser.parse(tokens)}</blockquote>`;
-
-const marked = new Marked({ renderer, gfm: true });
-
+export function renderMarkdownWithHeadings(source: string) {
+  const renderer = new Renderer();
+  const headings: { id: string; title: string }[] = [];
+  renderer.heading = function ({ tokens, depth, text }) {
+    const html = this.parser.parseInline(tokens);
+    const id = depth === 2 ? `section-${headings.length + 1}` : undefined;
+    if (id) headings.push({ id, title: text.replace(/\*|`/g, '') });
+    if (depth === 2 || depth === 3)
+      return surfaceMarkup(renderRichText(depth === 2 ? 'h2' : 'h3', html, id));
+    return `<h${depth}>${html}</h${depth}>`;
+  };
+  renderer.paragraph = function ({ tokens }) {
+    const html = this.parser.parseInline(tokens);
+    const paragraph = surfaceMarkup(renderRichText('p', html));
+    return html.includes('<strong>現在の判定：') &&
+      html.includes('<strong>型：')
+      ? `<div class="analysis-meta">${paragraph.replace(/<\/strong>[\s　]*<strong>/g, '</strong><strong>')}</div>`
+      : paragraph;
+  };
+  renderer.list = function (token) {
+    const html = Renderer.prototype.list.call(this, token);
+    const labels = /^(仮説|買う条件|利確条件|損切り条件|次の行動)$/;
+    const isConditions =
+      !token.ordered &&
+      token.items.length >= 3 &&
+      token.items.every((item) =>
+        labels.test(/^\*\*([^*]+)\*\*/.exec(item.text)?.[1] ?? ''),
+      );
+    if (!isConditions) return html;
+    return html
+      .replace('<ul>', '<ul class="decision-list">')
+      .replace(
+        /<li><strong>([^<]+)<\/strong>([\s\S]*?)<\/li>/g,
+        (_all: string, label: string, body: string) =>
+          `<li><span class="decision-label">${label}</span><div class="decision-copy">${body.replace(/^\s*[：:]\s*/, '')}</div></li>`,
+      );
+  };
+  renderer.code = ({ text, lang }) => {
+    if (lang === 'metrics') return metrics(text);
+    if (lang === 'theme-chart') return themeChart(text);
+    if (lang === 'x-posts') return xPosts(text);
+    const language = lang ? ` class="language-${escape(lang)}"` : '';
+    return `<pre><code${language}>${escape(text)}</code></pre>`;
+  };
+  renderer.blockquote = function ({ tokens }) {
+    return `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light">${this.parser.parse(tokens)}</blockquote>`;
+  };
+  const marked = new Marked({ renderer, gfm: true });
+  const html = marked.parse(source) as string;
+  const styles = new Set<string>();
+  const compactHtml = html.replace(
+    /<style>([\s\S]*?)<\/style>/g,
+    (tag, css: string) => {
+      if (styles.has(css)) return '';
+      styles.add(css);
+      return tag;
+    },
+  );
+  return { html: compactHtml, headings };
+}
 export function renderMarkdown(source: string) {
-  return marked.parse(source) as string;
+  return renderMarkdownWithHeadings(source).html;
 }

@@ -2,23 +2,26 @@
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { renderLatest, renderArchiveHero, renderArchiveSearch, renderThemeFilters, renderArchiveReset } from '../lib/base-surfaces';
 import { editions, sitePath } from '../lib/issues';
+import { editionTopics } from '../lib/edition-topics';
+const hero = renderArchiveHero(editions.length, editions[0]?.date ?? '準備中', editionTopics(editions[0]?.markdown ?? ''));
+const search = renderArchiveSearch();
+const reset = renderArchiveReset();
+const counts = new Map<string, number>();
+for (const edition of editions) for (const {label} of editionTopics(edition.markdown)) counts.set(label,(counts.get(label)??0)+1);
+const filters = renderThemeFilters([...counts].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count));
+const themesFor = (markdown: string)=>JSON.stringify(editionTopics(markdown).map(topic=>topic.label));
+
 ---
 
 <BaseLayout>
-  <main>
+  <main id="main-content" tabindex="-1">
     <SiteHeader />
     <section class="archive" aria-labelledby="archive-title">
-      <div class="archive-heading">
-        <div>
-          <span class="edition">DAILY MARKET BRIEFING</span>
-          <h1 id="archive-title">市場を追う、毎日の投資メモ</h1>
-          <p class="archive-description">
-            Xで選んだ発信者の投稿から、投資アイデアと確認条件を整理します。
-          </p>
-        </div>
-        <p class="issue-count">{editions.length}号</p>
-      </div>
+      <div class="archive-hero"><style is:inline set:html={hero.css}/><Fragment set:html={hero.html}/></div>
+      <div id="editions" class="archive-tools" hidden><label for="archive-search">観測日誌を探す</label><div class="archive-search-field"><style is:inline set:html={search.css}/><Fragment set:html={search.html}/></div><p id="search-status" role="status">{editions.length}号を表示</p></div>
+      <div class="theme-filters" hidden><div class="theme-filter-heading"><p>テーマから追う <span>各テーマが登場した号数</span></p><div class="archive-reset" hidden><style is:inline set:html={reset.css}/><Fragment set:html={reset.html}/></div></div><style is:inline set:html={filters.css}/><Fragment set:html={filters.html}/></div>
       {
         editions.length === 0 ? (
           <div class="empty">
@@ -26,26 +29,83 @@ import { editions, sitePath } from '../lib/issues';
             <p>初回の記事を準備しています。</p>
           </div>
         ) : (
+          <div class="archive-label"><h2>観測日誌</h2><span>新しい順</span></div>
           <div class="issue-list">
-            {editions.map((issue, index) => (
-              <a class="issue-card" href={sitePath(`${issue.date}/`)}>
+            {editions.map((issue, index) => index === 0 ? (() => {
+              const surface = renderLatest(issue, sitePath(`${issue.date}/`));
+              return <div class="latest-edition" data-edition-themes={themesFor(issue.markdown)} data-edition-search={`${issue.title} ${issue.summary} ${issue.date}`}><style is:inline set:html={surface.css} /><Fragment set:html={surface.html} /></div>;
+            })() : (
+              <a class="issue-card" data-edition-themes={themesFor(issue.markdown)} data-edition-search={`${issue.title} ${issue.summary} ${issue.date}`} href={sitePath(`${issue.date}/`)}>
                 <div class="issue-card-meta">
                   <time datetime={issue.date}>{issue.date}</time>
                   <span>
-                    {index === 0
-                      ? '最新号'
-                      : `${issue.posts.toLocaleString('ja-JP')}件`}
+                    {`${issue.posts.toLocaleString('ja-JP')}件`}
                   </span>
                 </div>
                 <h2>{issue.title}</h2>
                 <p>{issue.summary}</p>
-                <span class="read-more">読む →</span>
+                <span class="read-more">読む <span aria-hidden="true">↗</span></span>
               </a>
             ))}
           </div>
         )
       }
     </section>
+    <p class="search-empty" hidden>一致する観測日誌がありません。別の銘柄名やキーワードで探してください。</p>
     <SiteFooter />
   </main>
 </BaseLayout>
+
+<script>
+  import { animateFeedback } from '../lib/motion';
+  const tools = document.querySelector<HTMLElement>('.archive-tools');
+  const input = document.querySelector<HTMLInputElement>('#archive-search');
+  const editions = [...document.querySelectorAll<HTMLElement>('[data-edition-search]')];
+  const status = document.querySelector('#search-status');
+  const empty = document.querySelector<HTMLElement>('.search-empty');
+  if (tools && input) {
+    tools.hidden = false;
+    const filters = document.querySelector<HTMLElement>('.theme-filters');
+    const reset = document.querySelector<HTMLElement>('.archive-reset');
+    const resetButton = document.querySelector<HTMLButtonElement>('#archive-reset');
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-filter]')];
+    let theme = '';
+    const requested = new URL(location.href).searchParams.get('theme');
+    if (buttons.some(button=>button.dataset.themeFilter===requested)) theme = requested ?? '';
+    if (filters) filters.hidden = false;
+    const update = (animate = false) => {
+      const terms = input.value.normalize('NFKC').toLocaleLowerCase('ja-JP').trim().split(/\s+/).filter(Boolean);
+      let count = 0;
+      for (const edition of editions) {
+        const text = (edition.dataset.editionSearch ?? '').normalize('NFKC').toLocaleLowerCase('ja-JP');
+        edition.hidden = !terms.every(term=>text.includes(term)) || (theme !== '' && !JSON.parse(edition.dataset.editionThemes ?? '[]').includes(theme));
+        if (!edition.hidden) { count++; if (animate) animateFeedback(edition); }
+      }
+      if (status) status.textContent = `${theme ? theme + " / " : ""}${count}号を表示`;
+      if (empty) empty.hidden = count > 0;
+      if (reset) reset.hidden = !theme && terms.length === 0;
+      for (const button of buttons) button.setAttribute('aria-pressed',String(button.dataset.themeFilter===theme));
+    };
+    input.addEventListener('input',()=>update());
+    resetButton?.addEventListener('click',()=>{
+      theme = '';
+      input.value = '';
+      const url = new URL(location.href);
+      url.searchParams.delete('theme');
+      history.replaceState(null,'',url);
+      update(true);
+      input.focus();
+    });
+    for (const button of buttons) button.addEventListener('click',()=>{
+      theme = button.dataset.themeFilter ?? '';
+      const url = new URL(location.href);
+      if (theme) url.searchParams.set('theme',theme); else url.searchParams.delete('theme');
+      history.replaceState(null,'',url);
+      update(true);
+    });
+    const active = buttons.find(button=>button.dataset.themeFilter===theme);
+    const disclosure = active?.closest<HTMLDetailsElement>('details');
+    if (disclosure) disclosure.open = true;
+    update();
+  }
+</script>

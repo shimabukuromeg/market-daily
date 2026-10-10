@@ -4,7 +4,10 @@ import SiteHeader from '../components/SiteHeader.astro';
 import ShareActions from '../components/ShareActions.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { editions, sitePath, type Issue } from '../lib/issues';
-import { renderMarkdown } from '../lib/markdown';
+import { renderTopics, renderArticleGrid, renderRichText, renderBreadcrumbs } from '../lib/base-surfaces';
+import { renderMarkdownWithHeadings } from '../lib/markdown';
+import { editionTopics } from '../lib/edition-topics';
+import SourceEnhancement from '../components/SourceEnhancement.astro';
 
 export function getStaticPaths() {
   return editions.map((issue) => ({
@@ -18,7 +21,14 @@ interface Props {
 }
 
 const { issue } = Astro.props;
-const content = renderMarkdown(issue.markdown);
+const breadcrumbs = renderBreadcrumbs(sitePath(), issue.date);
+const content = renderMarkdownWithHeadings(issue.markdown);
+const grid = renderArticleGrid(content.html, content.headings);
+const topics = renderTopics(editionTopics(issue.markdown).map(topic=>topic.label));
+const titleSurface = renderRichText('h1', issue.title.replace(/&/g,'&amp;').replace(/</g,'&lt;'));
+const currentIndex = editions.findIndex(edition=>edition.date===issue.date);
+const older = editions[currentIndex+1];
+const newer = editions[currentIndex-1];
 const canonical = new URL(sitePath(`${issue.date}/`), Astro.site).href;
 ---
 
@@ -29,21 +39,28 @@ const canonical = new URL(sitePath(`${issue.date}/`), Astro.site).href;
   type="article"
   image={`og/${issue.date}.png`}
 >
-  <main>
+  <main id="main-content" tabindex="-1">
     <SiteHeader />
     <div class="back-link">
-      <a href={sitePath()}>← 記事一覧へ</a>
+      <style is:inline set:html={breadcrumbs.css} />
+      <Fragment set:html={breadcrumbs.html} />
     </div>
     <article>
       <div class="issue-meta">
         <span>Market Daily</span>
         <time datetime={issue.date}>{issue.date}</time>
       </div>
-      <h1 class="issue-title">{issue.title}</h1>
+      <div class="issue-title"><style is:inline set:html={titleSurface.css}/><Fragment set:html={titleSurface.html}/></div>
       <p class="lede">{issue.summary}</p>
       <p class="coverage">{issue.coverage}</p>
+      <div class="article-topics"><style is:inline set:html={topics.css}/><Fragment set:html={topics.html}/></div>
       <ShareActions title={`${issue.title} | Market Daily`} url={canonical} />
-      <div class="prose" set:html={content} />
+      <div class="article-grid"><style is:inline set:html={grid.css}/><Fragment set:html={grid.html}/></div>
+      <nav class="edition-navigation" aria-label="前後の観測日誌">
+        {older && <a href={sitePath(`${older.date}/`)}><span>← 前の観測 / {older.date}</span><strong>{older.title}</strong></a>}
+        {newer && <a href={sitePath(`${newer.date}/`)}><span>次の観測 / {newer.date} →</span><strong>{newer.title}</strong></a>}
+      </nav>
+      <SourceEnhancement/>
     </article>
     <SiteFooter />
   </main>

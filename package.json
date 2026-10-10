@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "astro dev",
@@ -22,22 +22,31 @@
     "collect": "node scripts/collect.mjs",
     "storage:backfill": "node scripts/backfill-storage.mjs",
     "login": "npm run browser",
-    "check": "astro check"
+    "check": "astro check",
+    "verify:ui": "node scripts/verify-ui.mjs"
   },
   "dependencies": {
+    "@astrojs/react": "^4.4.2",
     "@duckdb/node-api": "^1.5.5-r.5",
     "@fontsource/noto-sans-jp": "^5.3.0",
     "@resvg/resvg-js": "^2.6.2",
     "astro": "^5.14.1",
+    "baseui": "^18.2.0",
     "marked": "^16.3.0",
     "playwright": "1.63.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "satori": "^0.33.5",
+    "styletron-engine-monolithic": "^1.0.0",
+    "styletron-react": "^6.1.1",
     "twitter-api-safe-relay": "0.2.1",
     "yaml": "2.9.1"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@types/node": "22.19.19",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "oxfmt": "0.61.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
