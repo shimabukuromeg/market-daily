@@ -1,0 +1,38 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import ShareActions from '../../components/ShareActions.astro';
+import SourceEnhancement from '../../components/SourceEnhancement.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { explains, type Explain } from '../../lib/explains';
+import { sitePath } from '../../lib/issues';
+import { renderMarkdownWithHeadings } from '../../lib/markdown';
+
+export function getStaticPaths() {
+  return explains.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+interface Props { item: Explain }
+const { item } = Astro.props;
+const canonical = new URL(sitePath(`explains/${item.slug}/`), Astro.site).href;
+const content = renderMarkdownWithHeadings(item.markdown);
+---
+
+<BaseLayout title={`${item.title} | Market Daily`} description={item.summary} canonical={canonical} type="article" image={`og/explain-${item.slug}.png`}>
+  <main id="main-content" tabindex="-1">
+    <SiteHeader />
+    <div class="back-link"><a href={sitePath('explains/')}>← 深掘り記事</a></div>
+    <article class="explain-article">
+      <div class="issue-meta"><span>Market Daily / 深掘り</span><time datetime={item.date}>{item.date}</time></div>
+      <div class="issue-title"><h1>{item.title}</h1></div>
+      <p class="lede">{item.summary}</p>
+      <ShareActions title={`${item.title} | Market Daily`} url={canonical} />
+      <div class="article-grid explain-body">
+        <nav class="explain-toc" aria-label="記事の目次"><span>この記事の目次</span><ol>{content.headings.map((heading) => <li><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ol></nav>
+        <div class="prose" set:html={content.html} />
+      </div>
+      <SourceEnhancement />
+    </article>
+    <SiteFooter />
+  </main>
+</BaseLayout>

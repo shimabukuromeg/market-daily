@@ -52,6 +52,69 @@ summary:focus-visible {
   text-decoration: none;
   line-height: 1.2;
 }
+.explain-feature {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 48px;
+  padding: 24px 28px;
+  color: var(--foreground);
+  background: var(--base-color-backgroundSecondary);
+  border-left: 3px solid var(--accent);
+  text-decoration: none;
+}
+.explain-feature > span:first-child,
+.explain-eyebrow {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.explain-feature strong {
+  font-size: clamp(20px, 2.5vw, 28px);
+  line-height: 1.45;
+}
+.explain-feature > span:last-child {
+  font-size: 14px;
+  color: var(--muted);
+}
+.explain-feature b { margin-left: 8px; }
+.explain-hero {
+  max-width: 780px;
+  padding: 48px 0 64px;
+}
+.explain-hero h1 {
+  margin: 16px 0 24px;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.3;
+  letter-spacing: -0.04em;
+}
+.explain-hero > p:last-child { color: var(--muted); }
+.explain-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  gap: 48px;
+}
+.explain-body .prose { grid-column: 1; grid-row: 1; min-width: 0; }
+.explain-toc {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  position: sticky;
+  top: 32px;
+  padding-left: 20px;
+  border-left: 1px solid var(--line);
+  font-size: 13px;
+}
+.explain-toc > span { font-weight: 700; }
+.explain-toc ol { margin: 12px 0 0; padding-left: 18px; }
+.explain-toc li { margin: 8px 0; }
+.explain-toc a { color: var(--muted); text-decoration: none; }
+.explain-toc a:hover { color: var(--foreground); text-decoration: underline; }
+@media (max-width: 760px) {
+  .explain-body { display: block; }
+  .explain-toc { position: static; margin-bottom: 24px; }
+  .explain-feature { padding: 20px; }
+}
 .brand-symbol {
   width: 32px;
   height: 32px;

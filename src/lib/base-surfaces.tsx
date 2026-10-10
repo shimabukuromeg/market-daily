@@ -92,7 +92,12 @@ export function renderHeader(home: string) {
           $style={{ paddingLeft: baseTheme.sizing.scale300 }}
         >
           <Button $as="a" href={home} kind={KIND.tertiary} size={SIZE.compact}>
-            記事一覧
+            観測日誌
+          </Button>
+        </StyledNavigationItem>
+        <StyledNavigationItem>
+          <Button $as="a" href={sitePath('explains/')} kind={KIND.tertiary} size={SIZE.compact}>
+            深掘り
           </Button>
         </StyledNavigationItem>
         <StyledNavigationItem className="header-github">

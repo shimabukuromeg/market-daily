@@ -1,0 +1,32 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { explains } from '../../lib/explains';
+import { sitePath } from '../../lib/issues';
+---
+
+<BaseLayout title="深掘り | Market Daily" description="気になったXの投稿を起点に、主張と事実を分けて投資の問いを整理する記事。">
+  <main id="main-content" tabindex="-1">
+    <SiteHeader />
+    <section class="archive explain-archive" aria-labelledby="explain-title">
+      <div class="explain-hero">
+        <p class="explain-eyebrow">MARKET DAILY / 深掘り</p>
+        <h1 id="explain-title">ひとつの投稿から、<br />投資の問いをほどく。</h1>
+        <p>気になった発言を起点に、意味・根拠・まだ分からないことを整理します。</p>
+      </div>
+      <div class="archive-label"><h2>深掘り記事</h2><span>新しい順</span></div>
+      <div class="issue-list">
+        {explains.map((item) => (
+          <a class="issue-card" href={sitePath(`explains/${item.slug}/`)}>
+            <div class="issue-card-meta"><time datetime={item.date}>{item.date}</time><span>深掘り</span></div>
+            <h2>{item.title}</h2>
+            <p>{item.summary}</p>
+            <span class="read-more">読む <span aria-hidden="true">↗</span></span>
+          </a>
+        ))}
+      </div>
+    </section>
+    <SiteFooter />
+  </main>
+</BaseLayout>
