@@ -18,12 +18,26 @@ const {
   type = 'website',
   image = 'og/market-daily.png',
 } = Astro.props;
+const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID?.trim();
+const analyticsEnabled = import.meta.env.PROD && /^G-[A-Z0-9]+$/.test(gaMeasurementId ?? '');
 const ogImage = new URL(`${import.meta.env.BASE_URL}${image}`, Astro.site).href;
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
+    {analyticsEnabled && <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+      <script is:inline define:vars={{ gaMeasurementId }}>
+        // Built previews served locally must not send visits to GA.
+        if (!['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { window.dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', gaMeasurementId);
+        }
+      </script>
+    </>}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />

@@ -55,3 +55,11 @@ GitHubリポジトリの Settings → Pages → Source を GitHub Actions に設
 - https://github.com/fa0311/twitter_api_safe_relay
 
 Xpaperのコードはコピーせず、紙面の発想を参考にしている。
+
+## GA4のアクセス計測
+
+GitHubのリポジトリ設定で **Settings → Secrets and variables → Actions → Variables** を開き、`PUBLIC_GA_MEASUREMENT_ID` にGA4の測定ID（`G-XXXXXXXXXX`）を登録する。測定IDはブラウザへ公開される値なので、Secretへの登録は不要。
+
+登録後、mainのPagesワークフローを再実行すると、全ページにGoogleタグが入る。値が未設定、空、または `G-` に続く英大文字・数字以外の場合はタグを出力しない。計測を止める場合は変数を削除して再ビルドする。生成済みのサイトは変数の変更だけでは更新されない。
+
+開発サーバーとPRのビルドではタグを出力しない。測定IDを指定した本番ビルドをlocalhostでプレビューした場合も、計測の初期化を行わない。公開後はGA4のリアルタイムレポートやGoogle Tag Assistantで受信を確認する。
