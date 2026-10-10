@@ -34,7 +34,7 @@ for (const issue of issues) {
       !token.ordered &&
       token.items.length >= 3 &&
       token.items.every((item) =>
-        /^(仮説|買う条件|利確条件|損切り条件|次の行動)$/.test(
+        /^(取り上げた理由|仮説|買う条件|利確条件|損切り条件|次の行動)$/.test(
           /^\*\*([^*]+)\*\*/.exec(item.text)?.[1] ?? '',
         ),
       ),
@@ -79,3 +79,18 @@ for (const issue of issues)
 console.log(
   `Verified ${issues.length} articles, all TOC targets, ${checkedLinks} unique-per-article source links, static source fallbacks, table labels, metadata, and archive routes.`,
 );
+
+const guide = await read('dist/decision-types/index.html');
+let typeLinks = 0;
+for (const issue of issues) {
+  const html = await read(`dist/${issue.date}/index.html`);
+  const links = [...html.matchAll(/href="[^"#]*decision-types\/#([a-z-]+)"/g)];
+  const labels = issue.markdown.match(/\*\*型[：:]/g) ?? [];
+  assert.ok(links.length >= labels.length, `${issue.date}: type explanations`);
+  for (const [, anchor] of links) {
+    assert.ok(guide.includes(`id="${anchor}"`), `${issue.date}: guide target ${anchor}`);
+    typeLinks++;
+  }
+}
+assert.equal((guide.match(/<h1(?:\s|>)/g) ?? []).length, 1, 'guide: one page heading');
+console.log(`Verified ${typeLinks} decision type links and their guide targets.`);
