@@ -403,7 +403,16 @@ footer strong {
   color: var(--foreground);
   font-size: 18px;
 }
-footer > a {
+.footer-links {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-self: center;
+  gap: var(--base-space-scale800);
+}
+.footer-links a {
   align-self: center;
   font-size: 14px;
 }
@@ -478,6 +487,11 @@ footer > a {
   }
   footer p {
     grid-row: auto;
+  }
+  .footer-links {
+    grid-column: 1;
+    grid-row: auto;
+    justify-content: flex-start;
   }
 }
 @media (prefers-reduced-motion: reduce) {
