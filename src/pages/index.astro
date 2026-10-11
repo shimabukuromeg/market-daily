@@ -5,6 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { renderLatest, renderArchiveHero, renderArchiveSearch, renderThemeFilters, renderArchiveReset } from '../lib/base-surfaces';
 import { editions, sitePath } from '../lib/issues';
 import { editionTopics } from '../lib/edition-topics';
+import { explains } from '../lib/explains';
 const hero = renderArchiveHero(editions.length, editions[0]?.date ?? '準備中', editionTopics(editions[0]?.markdown ?? ''));
 const search = renderArchiveSearch();
 const reset = renderArchiveReset();
@@ -20,6 +21,11 @@ const themesFor = (markdown: string)=>JSON.stringify(editionTopics(markdown).map
     <SiteHeader />
     <section class="archive" aria-labelledby="archive-title">
       <div class="archive-hero"><style is:inline set:html={hero.css}/><Fragment set:html={hero.html}/></div>
+      {explains.length > 0 && <a class="explain-feature" href={sitePath(`explains/${explains[0].slug}/`)}>
+        <span>DEEP DIVE / 深掘り</span>
+        <strong>{explains[0].title}</strong>
+        <span>投稿の意味と、投資で次に見る数字を整理する <b aria-hidden="true">↗</b></span>
+      </a>}
       <div id="editions" class="archive-tools" hidden><label for="archive-search">観測日誌を探す</label><div class="archive-search-field"><style is:inline set:html={search.css}/><Fragment set:html={search.html}/></div><p id="search-status" role="status">{editions.length}号を表示</p></div>
       <div class="theme-filters" hidden><div class="theme-filter-heading"><p>テーマから追う <span>各テーマが登場した号数</span></p><div class="archive-reset" hidden><style is:inline set:html={reset.css}/><Fragment set:html={reset.html}/></div></div><style is:inline set:html={filters.css}/><Fragment set:html={filters.html}/></div>
       {

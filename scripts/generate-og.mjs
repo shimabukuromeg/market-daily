@@ -12,6 +12,9 @@ const issues = JSON.parse(
     'utf8',
   ),
 );
+const explains = JSON.parse(
+  await readFile(new URL('../src/generated/explains.json', import.meta.url), 'utf8'),
+);
 const font = (weight) =>
   readFile(
     new URL(
@@ -36,7 +39,7 @@ const fonts = [
   { name: 'Noto Sans JP', data: bold, weight: 700, style: 'normal' },
 ];
 const style = (value) => ({ style: value });
-function paper({ date, title, summary, posts }) {
+function paper({ date, title, summary, posts, kind }) {
   const space = (name) => Number.parseInt(sizing[name]);
   const type = (name) => ({
     fontSize: Number.parseInt(typography[name].fontSize),
@@ -45,7 +48,9 @@ function paper({ date, title, summary, posts }) {
       Number.parseInt(typography[name].lineHeight) /
       Number.parseInt(typography[name].fontSize),
   });
-  const titleType = posts
+  const titleType = kind === 'explain'
+    ? 'DisplaySmall'
+    : posts
     ? title.length > 60
       ? 'DisplaySmall'
       : 'DisplayMedium'
@@ -98,7 +103,7 @@ function paper({ date, title, summary, posts }) {
               color: colors.contentSecondary,
               marginTop: 4,
             }),
-            '株の観測日誌',
+            kind === 'explain' ? '投稿を深掘り' : '株の観測日誌',
           ),
         ),
       ),
@@ -156,13 +161,13 @@ function paper({ date, title, summary, posts }) {
         h(
           'span',
           {},
-          posts ? '話題を追う。買う条件を考える。' : 'MARKET DAILY / 観測日誌',
+          kind === 'explain' ? 'ひとつの投稿から、投資の問いをほどく。' : posts ? '話題を追う。買う条件を考える。' : 'MARKET DAILY / 観測日誌',
         ),
       ),
       h(
         'span',
         style({ color: colors.contentSecondary }),
-        posts
+        kind === 'explain' ? 'DEEP DIVE / 深掘り' : posts
           ? `収集投稿 ${posts.toLocaleString('ja-JP')}件`
           : '出典と、次に確かめる数字。',
       ),
@@ -184,4 +189,5 @@ await generate('market-daily', {
   posts: 0,
 });
 for (const issue of issues) await generate(issue.date, issue);
-console.log(`Generated ${issues.length + 1} OGP images`);
+for (const item of explains) await generate(`explain-${item.slug}`, {...item, kind: 'explain', date: `DEEP DIVE / ${item.date}`});
+console.log(`Generated ${issues.length + explains.length + 1} OGP images`);

@@ -1,5 +1,6 @@
 import type {APIRoute} from 'astro';
 import {editions, sitePath} from '../lib/issues';
+import {explains} from '../lib/explains';
 
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, character => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;',
@@ -9,8 +10,12 @@ export const GET: APIRoute = ({site}) => {
   if (!site) throw new Error('Astro site URL is required for RSS.');
   const home = new URL(sitePath(), site).href;
   const feed = new URL(sitePath('rss.xml'), site).href;
-  const items = editions.map(issue => {
-    const url = new URL(sitePath(`${issue.date}/`), site).href;
+  const entries = [
+    ...editions.map(issue => ({date: issue.date, title: issue.title, summary: issue.summary, path: `${issue.date}/`})),
+    ...explains.map(item => ({date: item.date, title: `深掘り｜${item.title}`, summary: item.summary, path: `explains/${item.slug}/`})),
+  ].sort((a,b) => b.date.localeCompare(a.date));
+  const items = entries.map(issue => {
+    const url = new URL(sitePath(issue.path), site).href;
     return `<item>
       <title>${escapeXml(issue.title)}</title>
       <link>${escapeXml(url)}</link>
