@@ -110,6 +110,15 @@ summary:focus-visible {
 .explain-toc li { margin: 8px 0; }
 .explain-toc a { color: var(--muted); text-decoration: none; }
 .explain-toc a:hover { color: var(--foreground); text-decoration: underline; }
+.explain-source {
+  margin: 64px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.explain-source a { color: inherit; }
 @media (max-width: 760px) {
   .explain-body { display: block; }
   .explain-toc { position: static; margin-bottom: 24px; }
