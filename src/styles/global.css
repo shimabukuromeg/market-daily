@@ -89,6 +89,37 @@ summary:focus-visible {
   letter-spacing: -0.04em;
 }
 .explain-hero > p:last-child { color: var(--muted); }
+.explain-question {
+  max-width: 760px;
+  margin: 32px 0 0;
+  padding: 28px 32px;
+  background: var(--base-color-backgroundSecondary);
+  border-left: 3px solid var(--accent);
+}
+.explain-question-label {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.explain-question-text {
+  margin: 0;
+  font-size: clamp(19px, 2.5vw, 25px);
+  font-weight: 700;
+  line-height: 1.55;
+  text-wrap: balance;
+}
+.explain-answer {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.explain-answer span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.explain-answer p { margin: 0; font-size: 15px; line-height: 1.8; }
 .explain-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 200px;
@@ -120,6 +151,7 @@ summary:focus-visible {
 }
 .explain-source a { color: inherit; }
 @media (max-width: 760px) {
+  .explain-question { padding: 22px 20px; }
   .explain-body { display: block; }
   .explain-toc { position: static; margin-bottom: 24px; }
   .explain-feature { padding: 20px; }

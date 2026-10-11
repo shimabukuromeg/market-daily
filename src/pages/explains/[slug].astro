@@ -24,7 +24,11 @@ const content = renderMarkdownWithHeadings(item.markdown);
     <article class="explain-article">
       <div class="issue-meta"><span>Market Daily / 深掘り</span><time datetime={item.date}>{item.date}</time></div>
       <div class="issue-title"><h1>{item.title}</h1></div>
-      <p class="lede">{item.summary}</p>
+      <section class="explain-question" aria-label="最初の問いと答え">
+        <p class="explain-question-label">QUESTION / まず考えてみる</p>
+        <p class="explain-question-text">{item.question}</p>
+        <div class="explain-answer"><span>答え</span><p>{item.answer}</p></div>
+      </section>
       <ShareActions title={`${item.title} | Market Daily`} url={canonical} />
       <div class="article-grid explain-body">
         <nav class="explain-toc" aria-label="記事の目次"><span>この記事の目次</span><ol>{content.headings.map((heading) => <li><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ol></nav>
