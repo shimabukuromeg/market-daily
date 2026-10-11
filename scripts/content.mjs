@@ -32,11 +32,11 @@ for(const file of (await readdir(explainFolder)).filter(f=>f.endsWith('.md')).so
  const m=raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
  assert(m,`Missing frontmatter: ${file}`);
  const meta=parse(m[1]);
- for(const k of ['date','title','summary','source'])assert(typeof meta[k]==='string'&&meta[k].trim(),`Missing ${k}: ${file}`);
+ for(const k of ['date','title','summary','source','sourceLabel'])assert(typeof meta[k]==='string'&&meta[k].trim(),`Missing ${k}: ${file}`);
  assert(/^\d{4}-\d{2}-\d{2}$/.test(meta.date),`Invalid date: ${file}`);
- assert(/^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/.test(meta.source),`Invalid source: ${file}`);
+ assert(meta.source==='screenshot'||/^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/.test(meta.source),`Invalid source: ${file}`);
  assert(!/<\/?(?:script|iframe|style)\b/i.test(m[2]),`HTML is not allowed: ${file}`);
- assert(m[2].includes(meta.source),`Missing source link: ${file}`);
+ assert(!/```x-posts\b/.test(m[2]),`Deep dives use a compact source note: ${file}`);
  explains.push({...meta,slug:file.slice(0,-3),markdown:m[2]});
 }
 await writeFile(new URL('../src/generated/explains.json',import.meta.url),JSON.stringify(explains,null,2)+'\n');

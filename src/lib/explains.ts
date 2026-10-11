@@ -6,6 +6,7 @@ export type Explain = {
   title: string;
   summary: string;
   source: string;
+  sourceLabel: string;
   markdown: string;
 };
 

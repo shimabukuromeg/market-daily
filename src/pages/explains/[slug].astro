@@ -2,7 +2,6 @@
 import SiteFooter from '../../components/SiteFooter.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import ShareActions from '../../components/ShareActions.astro';
-import SourceEnhancement from '../../components/SourceEnhancement.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { explains, type Explain } from '../../lib/explains';
 import { sitePath } from '../../lib/issues';
@@ -31,7 +30,7 @@ const content = renderMarkdownWithHeadings(item.markdown);
         <nav class="explain-toc" aria-label="記事の目次"><span>この記事の目次</span><ol>{content.headings.map((heading) => <li><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ol></nav>
         <div class="prose" set:html={content.html} />
       </div>
-      <SourceEnhancement />
+      <p class="explain-source">着想元：{item.source === 'screenshot' ? <span>{item.sourceLabel}（URL未確認）</span> : <a href={item.source} target="_blank" rel="noopener noreferrer">{item.sourceLabel} ↗</a>}</p>
     </article>
     <SiteFooter />
   </main>
