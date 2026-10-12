@@ -453,7 +453,7 @@ export function renderDecisionTypeLink(label: string, href: string) {
   );
 }
 
-export function renderTopicAI(id: string, prompt: string) {
+export function renderTopicAI(id: string, prompt: string, description?: string) {
   const providers = [
     ['ChatGPT', 'https://chatgpt.com/?q='],
     ['Claude', 'https://claude.ai/new?q='],
@@ -470,9 +470,9 @@ export function renderTopicAI(id: string, prompt: string) {
       <summary>AIで深掘り</summary>
       <div className="topic-ai-content">
         <ParagraphSmall>
-          {long
+          {description ?? (long
             ? '全文をコピーして、使うAIに貼り付けてください。'
-            : 'このトピックの全文を使うAIに渡します。初期入力されない場合は、コピーして貼り付けてください。'}
+            : 'このトピックの全文を使うAIに渡します。初期入力されない場合は、コピーして貼り付けてください。')}
         </ParagraphSmall>
         <div className="topic-ai-actions">
           {links.map(({ name, base, url }) => (

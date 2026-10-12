@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { explains, type Explain } from '../../lib/explains';
 import { sitePath } from '../../lib/issues';
 import { renderMarkdownWithHeadings } from '../../lib/markdown';
+import { renderTopicAI } from '../../lib/base-surfaces';
 
 export function getStaticPaths() {
   return explains.map((item) => ({ params: { slug: item.slug }, props: { item } }));
@@ -15,6 +16,12 @@ interface Props { item: Explain }
 const { item } = Astro.props;
 const canonical = new URL(sitePath(`explains/${item.slug}/`), Astro.site).href;
 const content = renderMarkdownWithHeadings(item.markdown);
+const aiPrompt = `この記事について、自分でも理解を深めたいです。記事を読んだうえで、中心の問いへの答えを具体例を使って説明し、根拠・反対の見方・次に確認すべき数字を整理してください。記事の日付と現在の情報を区別してください。記事を開けない場合は推測せず、本文を貼るよう求めてください。\n\n記事：${canonical}\n記事の日付：${item.date}\n問い：${item.question}\n記事の答え：${item.answer}`;
+const aiPanel = renderTopicAI(
+  `explain-${item.slug}`,
+  aiPrompt,
+  '記事のURLと問い・答えをAIに渡します。AIが記事を開けない場合は本文を貼ってください。',
+);
 ---
 
 <BaseLayout title={`${item.title} | Market Daily`} description={item.summary} canonical={canonical} type="article" image={`og/explain-${item.slug}.png`}>
@@ -32,9 +39,17 @@ const content = renderMarkdownWithHeadings(item.markdown);
       <ShareActions title={`${item.title} | Market Daily`} url={canonical} />
       <div class="article-grid explain-body">
         <nav class="explain-toc" aria-label="記事の目次"><span>この記事の目次</span><ol>{content.headings.map((heading) => <li><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ol></nav>
-        <div class="prose" set:html={content.html} />
+        <div class="prose">
+          <Fragment set:html={content.html} />
+          <style is:inline set:html={aiPanel.css} />
+          <Fragment set:html={aiPanel.html} />
+        </div>
       </div>
       <p class="explain-source">着想元：{item.source === 'screenshot' ? <span>{item.sourceLabel}（URL未確認）</span> : <a href={item.source} target="_blank" rel="noopener noreferrer">{item.sourceLabel} ↗</a>}</p>
+      <script>
+        import { enhanceTopicAI } from '../../lib/topic-ai';
+        enhanceTopicAI();
+      </script>
     </article>
     <SiteFooter />
   </main>
