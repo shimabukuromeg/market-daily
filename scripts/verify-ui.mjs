@@ -5,6 +5,7 @@ import { Lexer } from 'marked';
 const root = new URL('../', import.meta.url);
 const read = (path) => readFile(new URL(path, root), 'utf8');
 const issues = JSON.parse(await read('src/generated/issues.json'));
+const explains = JSON.parse(await read('src/generated/explains.json'));
 let checkedLinks = 0;
 for (const issue of issues) {
   const html = await read(`dist/${issue.date}/index.html`);
@@ -151,3 +152,26 @@ assert.equal(
 console.log(
   `Verified ${typeLinks} decision type links and their guide targets.`,
 );
+
+for (const item of explains) {
+  const html = await read(`dist/explains/${item.slug}/index.html`);
+  const encoded = html.match(
+    new RegExp(`<textarea[^>]*id="ai-prompt-explain-${item.slug}"[^>]*>([\\s\\S]*?)<\\/textarea>`),
+  )?.[1];
+  assert.ok(encoded, `${item.slug}: AI deep-dive prompt`);
+  const prompt = encoded
+    .replaceAll('&amp;', '&')
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#x27;', "'");
+  assert.ok(prompt.includes(`/explains/${item.slug}/`), `${item.slug}: article URL`);
+  assert.ok(prompt.includes(`記事の日付：${item.date}`), `${item.slug}: article date`);
+  assert.ok(prompt.includes(item.question), `${item.slug}: opening question`);
+  assert.ok(prompt.includes(item.answer), `${item.slug}: article answer`);
+  assert.ok(html.includes('記事のURLと問い・答えをAIに渡します。'), `${item.slug}: accurate AI guidance`);
+  for (const provider of ['https://chatgpt.com/?q=', 'https://claude.ai/new?q=']) {
+    assert.ok(html.includes(`href="${provider}${encodeURIComponent(prompt)}"`), `${item.slug}: AI link`);
+  }
+}
+console.log(`Verified AI deep-dive links in ${explains.length} explainers.`);
