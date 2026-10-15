@@ -18,7 +18,7 @@ test('selection ledger requires article citation and accounts for due followups'
   try {
     await writeFile(
       join(issueDir, '2026-10-14.md'),
-      '## 監視：架空電機\n- **仮説**：増益する見立て。\n## 次回更新する項目\n1. **架空電機の決算**：利益を比較する。\n',
+      '## 監視：架空電機\n- **仮説**：増益する見立て。\n## 次回更新する項目\n1. **架空電機の10月15日決算**：利益を比較する。\n',
     );
     const { target: stageFile } = await stageBackfill(issueDir, stageDir);
     await writeFile(
@@ -62,8 +62,15 @@ test('selection ledger requires article citation and accounts for due followups'
       ],
       deferred_candidates: [],
       due_actions: [],
+      priority_actions: [],
       backlog_note: '過去の確認項目は日程確認待ち',
     };
+    await writeFile(manifestFile, JSON.stringify(manifest));
+    await assert.rejects(
+      recordSelection({ date: '2026-10-15', runDir, articleFile, manifestFile, collectionFile }),
+      /Every priority review followup needs an action/,
+    );
+    manifest.priority_actions = [{ id: 'followup-2026-10-14-1', status: 'deferred', note: '公式日程の照合待ち' }];
     await writeFile(manifestFile, JSON.stringify(manifest));
     const result = await recordSelection({
       date: '2026-10-15',
@@ -73,6 +80,7 @@ test('selection ledger requires article citation and accounts for due followups'
       collectionFile,
     });
     assert.equal(result.used, 1);
+    assert.equal(result.priority_handled, 1);
     const saved = JSON.parse(await readFile(result.path, 'utf8'));
     assert.deepEqual(saved.read_prior_ids, ['candidate-2026-10-14-1']);
     await writeFile(articleFile, '## 監視：架空電機\n前回を参照。\n');

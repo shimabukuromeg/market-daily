@@ -88,6 +88,7 @@ test('stages every prior followup without inventing dates or results', async () 
       stageFile: result.target,
       reviewFile,
       date: '2026-10-15',
+      asOf: new Date().toISOString(),
     });
     assert.equal(upcoming.counts.upcoming, 1);
     assert.equal(upcoming.counts.review_queue, 0);
@@ -134,8 +135,41 @@ test('stages every prior followup without inventing dates or results', async () 
         reviewFile,
         id: 'followup-2026-10-14-1',
         attempt: {
-          outcome: 'supported',
+          outcome: 'inconclusive',
           checked_at: '2026-10-17T07:00:00+09:00',
+          target_period: '2026年度第3四半期',
+          note: '比較材料が不足',
+          source_url: 'https://example.com/new-ir.pdf',
+          comparison: '利益率の比較対象が未開示',
+        },
+      }),
+      /later next_check_at/,
+    );
+    const inconclusive = await recordFollowupAttempt({
+      stageFile: result.target,
+      reviewFile,
+      id: 'followup-2026-10-14-1',
+      attempt: {
+        outcome: 'inconclusive',
+        checked_at: '2026-10-17T07:00:00+09:00',
+        target_period: '2026年度第3四半期',
+        note: '比較材料が不足',
+        source_url: 'https://example.com/new-ir.pdf',
+        comparison: '利益率の比較対象が未開示',
+        next_check_at: '2026-10-18T07:00:00+09:00',
+      },
+    });
+    assert.equal(inconclusive.status, 'blocked');
+    const later = await prepareKnowledge({ issueDir, stageFile: result.target, reviewFile, date: '2026-10-18' });
+    assert.equal(later.counts.due, 1);
+    await assert.rejects(
+      recordFollowupAttempt({
+        stageFile: result.target,
+        reviewFile,
+        id: 'followup-2026-10-14-1',
+        attempt: {
+          outcome: 'supported',
+          checked_at: '2026-10-18T07:00:00+09:00',
           target_period: '2026年度第3四半期',
           note: '仮説と整合',
         },
@@ -148,7 +182,7 @@ test('stages every prior followup without inventing dates or results', async () 
       id: 'followup-2026-10-14-1',
       attempt: {
         outcome: 'supported',
-        checked_at: '2026-10-17T07:00:00+09:00',
+        checked_at: '2026-10-18T07:00:00+09:00',
         target_period: '2026年度第3四半期',
         note: '仮説と整合',
         source_url: 'https://example.com/new-ir.pdf',

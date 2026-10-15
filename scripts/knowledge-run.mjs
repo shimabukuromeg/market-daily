@@ -83,7 +83,8 @@ export async function recordSelection({
     !Array.isArray(manifest.used_prior) ||
     !Array.isArray(manifest.selected_candidates) ||
     !Array.isArray(manifest.deferred_candidates) ||
-    !Array.isArray(manifest.due_actions)
+    !Array.isArray(manifest.due_actions) ||
+    !Array.isArray(manifest.priority_actions)
   )
     throw new Error('Selection manifest is missing required arrays');
   const read = new Set(manifest.read_prior_ids);
@@ -161,6 +162,29 @@ export async function recordSelection({
   }
   if (handled.size !== dueIds.size)
     throw new Error('Every due followup needs an action');
+  const priority = new Map((preparation.priority_review_queue ?? []).map((item) => [item.id, item]));
+  const priorityHandled = new Set();
+  for (const action of manifest.priority_actions) {
+    if (
+      !priority.has(action.id) ||
+      priorityHandled.has(action.id) ||
+      !['reviewed', 'deferred'].includes(action.status) ||
+      !action.note?.trim()
+    ) throw new Error(`Invalid priority action: ${action.id}`);
+    if (action.status === 'reviewed') {
+      const current = latestReviews.items[action.id];
+      const prior = priority.get(action.id);
+      if (
+        !current ||
+        current.origin_hash !== prior.origin_hash ||
+        !current.reviewed_at ||
+        Date.parse(current.reviewed_at) < Date.parse(preparation.as_of)
+      ) throw new Error(`Reviewed priority followup needs a fresh review: ${action.id}`);
+    }
+    priorityHandled.add(action.id);
+  }
+  if (priorityHandled.size !== priority.size)
+    throw new Error('Every priority review followup needs an action');
   if (preparation.review_queue.length && !manifest.backlog_note?.trim())
     throw new Error('Unreviewed backlog needs a note');
   const result = {
@@ -186,6 +210,7 @@ export async function recordSelection({
     selected_candidates: manifest.selected_candidates,
     deferred_candidates: manifest.deferred_candidates,
     due_actions: manifest.due_actions,
+    priority_actions: manifest.priority_actions,
     backlog_note: manifest.backlog_note ?? null,
   };
   const path = join(runDir, `${date}-selection.json`);
@@ -197,5 +222,6 @@ export async function recordSelection({
     used: result.used_prior.length,
     selected: result.selected_candidates.length,
     due_handled: handled.size,
+    priority_handled: priorityHandled.size,
   };
 }

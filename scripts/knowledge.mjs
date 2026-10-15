@@ -6,6 +6,26 @@ import { parse } from 'yaml';
 const hash = (value) => createHash('sha256').update(value).digest('hex');
 const dateFile = /^\d{4}-\d{2}-\d{2}\.md$/;
 
+function mentionedCheckDate(item) {
+  if (item.title.includes('毎号')) return { date: item.origin.slice('content/issues/'.length, -3), reason: 'recurring_in_article' };
+  const match = item.title.match(/(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日/);
+  if (!match) return null;
+  const origin = item.origin.match(/(\d{4})-(\d{2})-(\d{2})\.md$/);
+  if (!origin) return null;
+  const originYear = Number(origin[1]);
+  const originMonth = Number(origin[2]);
+  const month = Number(match[2]);
+  if (!match[1] && month < originMonth) return null;
+  const year = Number(match[1] ?? originYear);
+  const date = `${year}-${String(month).padStart(2, '0')}-${String(Number(match[3])).padStart(2, '0')}`;
+  const parsed = new Date(`${date}T00:00:00+09:00`);
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    new Date(parsed.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10) !== date
+  ) return null;
+  return { date, reason: 'date_mentioned_in_article_unverified' };
+}
+
 export function extractIssueKnowledge(file, raw) {
   const date = file.slice(0, -3);
   const lines = raw.split('\n');
@@ -205,7 +225,7 @@ export async function prepareKnowledge({
         ...review,
         attempts,
         status: last
-          ? last.outcome === 'unavailable'
+          ? ['unavailable', 'inconclusive'].includes(last.outcome)
             ? 'blocked'
             : 'resolved'
           : 'pending',
@@ -226,6 +246,11 @@ export async function prepareKnowledge({
     (item) => Date.parse(item.next_check_at) > Date.parse(asOf),
   );
   const resolved = reviewed.filter((item) => item.status === 'resolved');
+  const priorityReviewQueue = reviewQueue.flatMap((item) => {
+    const mention = mentionedCheckDate(item);
+    if (!mention || Date.parse(`${mention.date}T00:00:00+09:00`) > Date.parse(asOf)) return [];
+    return [{ ...item, mentioned_check_date: mention.date, priority_reason: mention.reason }];
+  });
   const search = query.toLocaleLowerCase('ja-JP').trim();
   let posts = [];
   if (collectionFile) {
@@ -301,6 +326,7 @@ export async function prepareKnowledge({
     upcoming,
     resolved,
     review_queue: reviewQueue,
+    priority_review_queue: priorityReviewQueue,
     candidate_index: candidateIndex.map(({ id, heading, origin }) => ({
       id,
       heading,
@@ -318,6 +344,7 @@ export async function prepareKnowledge({
       upcoming: upcoming.length,
       resolved: resolved.length,
       review_queue: reviewQueue.length,
+      priority_review_queue: priorityReviewQueue.length,
       related_candidates: related.length,
       related_explainers: relatedExplainers.length,
     },
@@ -432,20 +459,20 @@ export async function recordFollowupAttempt({
   )
     throw new Error('Available evidence needs source_url and comparison');
   if (
-    attempt.outcome === 'unavailable' &&
+    ['unavailable', 'inconclusive'].includes(attempt.outcome) &&
     attempt.source_url &&
     !/^https?:\/\//.test(attempt.source_url)
   )
     throw new Error('Source must be an HTTP(S) URL');
   if (
-    attempt.outcome === 'unavailable' &&
+    ['unavailable', 'inconclusive'].includes(attempt.outcome) &&
     (!attempt.next_check_at ||
       !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+09:00$/.test(
         attempt.next_check_at,
       ) ||
       Date.parse(attempt.next_check_at) <= Date.parse(attempt.checked_at))
   )
-    throw new Error('Unavailable evidence needs a later next_check_at in JST');
+    throw new Error('Unresolved evidence needs a later next_check_at in JST');
   const clean = {
     outcome: attempt.outcome,
     checked_at: attempt.checked_at,
@@ -465,7 +492,7 @@ export async function recordFollowupAttempt({
       duplicate: true,
     };
   review.attempts.push({ id: attemptId, ...clean });
-  review.status = clean.outcome === 'unavailable' ? 'blocked' : 'resolved';
+  review.status = ['unavailable', 'inconclusive'].includes(clean.outcome) ? 'blocked' : 'resolved';
   if (clean.next_check_at) review.next_check_at = clean.next_check_at;
   await mkdir(dirname(reviewFile), { recursive: true, mode: 0o700 });
   const temp = `${reviewFile}.tmp`;
