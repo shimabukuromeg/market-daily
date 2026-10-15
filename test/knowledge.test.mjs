@@ -76,12 +76,13 @@ test('stages every prior followup without inventing dates or results', async () 
       date: '2026-10-14',
     });
     assert.equal(previousDay.counts.review_queue, 0);
+    // Keep the scheduled check in the future of the test runner's real clock.
     await reviewFollowup({
       stageFile: result.target,
       reviewFile,
       id: 'followup-2026-10-14-1',
-      nextCheckAt: '2026-10-16T07:00:00+09:00',
-      basis: '対象期間の翌日に確認する内部予定',
+      nextCheckAt: '2099-10-16T07:00:00+09:00',
+      basis: '架空の将来日に確認する内部予定',
     });
     const upcoming = await prepareKnowledge({
       issueDir,
@@ -96,16 +97,16 @@ test('stages every prior followup without inventing dates or results', async () 
       issueDir,
       stageFile: result.target,
       reviewFile,
-      date: '2026-10-16',
+      date: '2099-10-16',
     });
     assert.equal(due.counts.due, 1);
     assert.equal(due.due[0].status, 'pending');
     const unavailable = {
       outcome: 'unavailable',
-      checked_at: '2026-10-16T07:00:00+09:00',
+      checked_at: '2099-10-16T07:00:00+09:00',
       target_period: '2026年度第3四半期',
       note: '公式資料が未公開',
-      next_check_at: '2026-10-17T07:00:00+09:00',
+      next_check_at: '2099-10-17T07:00:00+09:00',
     };
     const first = await recordFollowupAttempt({
       stageFile: result.target,
@@ -125,7 +126,7 @@ test('stages every prior followup without inventing dates or results', async () 
       issueDir,
       stageFile: result.target,
       reviewFile,
-      date: '2026-10-17',
+      date: '2099-10-17',
     });
     assert.equal(retry.counts.due, 1);
     assert.equal(retry.due[0].attempts.length, 1);
@@ -136,7 +137,7 @@ test('stages every prior followup without inventing dates or results', async () 
         id: 'followup-2026-10-14-1',
         attempt: {
           outcome: 'inconclusive',
-          checked_at: '2026-10-17T07:00:00+09:00',
+          checked_at: '2099-10-17T07:00:00+09:00',
           target_period: '2026年度第3四半期',
           note: '比較材料が不足',
           source_url: 'https://example.com/new-ir.pdf',
@@ -151,16 +152,16 @@ test('stages every prior followup without inventing dates or results', async () 
       id: 'followup-2026-10-14-1',
       attempt: {
         outcome: 'inconclusive',
-        checked_at: '2026-10-17T07:00:00+09:00',
+        checked_at: '2099-10-17T07:00:00+09:00',
         target_period: '2026年度第3四半期',
         note: '比較材料が不足',
         source_url: 'https://example.com/new-ir.pdf',
         comparison: '利益率の比較対象が未開示',
-        next_check_at: '2026-10-18T07:00:00+09:00',
+        next_check_at: '2099-10-18T07:00:00+09:00',
       },
     });
     assert.equal(inconclusive.status, 'blocked');
-    const later = await prepareKnowledge({ issueDir, stageFile: result.target, reviewFile, date: '2026-10-18' });
+    const later = await prepareKnowledge({ issueDir, stageFile: result.target, reviewFile, date: '2099-10-18' });
     assert.equal(later.counts.due, 1);
     await assert.rejects(
       recordFollowupAttempt({
@@ -169,7 +170,7 @@ test('stages every prior followup without inventing dates or results', async () 
         id: 'followup-2026-10-14-1',
         attempt: {
           outcome: 'observed',
-          checked_at: '2026-10-18T07:00:00+09:00',
+          checked_at: '2099-10-18T07:00:00+09:00',
           target_period: '2026年度第3四半期',
           note: '仮説と整合',
         },
@@ -182,7 +183,7 @@ test('stages every prior followup without inventing dates or results', async () 
       id: 'followup-2026-10-14-1',
       attempt: {
         outcome: 'observed',
-        checked_at: '2026-10-18T07:00:00+09:00',
+        checked_at: '2099-10-18T07:00:00+09:00',
         target_period: '2026年度第3四半期',
         note: '公表値を確認。仮説全体の判定ではない',
         source_url: 'https://example.com/new-ir.pdf',
@@ -194,7 +195,7 @@ test('stages every prior followup without inventing dates or results', async () 
       issueDir,
       stageFile: result.target,
       reviewFile,
-      date: '2026-10-18',
+      date: '2099-10-18',
     });
     assert.equal(resolved.counts.due, 0);
     assert.equal(resolved.counts.resolved, 1);
@@ -203,7 +204,7 @@ test('stages every prior followup without inventing dates or results', async () 
         stageFile: result.target,
         reviewFile,
         id: 'followup-2026-10-14-1',
-        nextCheckAt: '2026-10-19T07:00:00+09:00',
+        nextCheckAt: '2099-10-19T07:00:00+09:00',
         basis: '次の期を確認',
       }),
       /Resolved followups cannot be rescheduled/,
