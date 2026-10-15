@@ -96,7 +96,8 @@ for (const issue of issues) {
   const urls = new Set(issue.markdown.match(/https?:\/\/[^\s|<>")]+/g) ?? []);
   for (const url of urls) {
     assert.ok(
-      decoded.includes(`href="${url}"`),
+      decoded.includes(`href="${url}"`) ||
+        decoded.includes(`href="${new URL(url).href}"`),
       `${issue.date}: missing source ${url}`,
     );
     checkedLinks++;
@@ -106,7 +107,7 @@ for (const issue of issues) {
     `${issue.date}: eager X script`,
   );
   assert.ok(
-    html.includes('class="source-accordion"') ||
+    html.includes('class="source-previews"') ||
       !issue.markdown.includes('```x-posts'),
     `${issue.date}: source fallback`,
   );

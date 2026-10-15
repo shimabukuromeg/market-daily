@@ -1,3 +1,4 @@
+import { companyOverviewInstructions } from './topic-ai-prompt';
 import { decisionTypes } from './decision-types';
 import { sitePath } from './issues';
 import { Marked, Renderer } from 'marked';
@@ -64,13 +65,7 @@ function xPosts(source: string) {
       /^https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+$/.test(url),
     );
   if (!posts.length) return '';
-  const sourceLinks = posts
-    .map(
-      ({ label, url }) =>
-        `<li><a href="${escape(url)}" target="_blank" rel="noopener noreferrer"><span>${escape(label)}</span><span aria-hidden="true">↗</span></a></li>`,
-    )
-    .join('');
-  return `<section class="x-posts" aria-label="関連するX投稿"><div class="source-accordion"><details><summary>引用元の投稿を確認（${posts.length}件）</summary><ul class="source-links">${sourceLinks}</ul></details></div><details class="source-previews"><summary>投稿プレビューを表示</summary><div>${posts.map(({ label, url }) => xPost(label, url)).join('')}</div></details></section>`;
+  return `<section class="x-posts" aria-label="関連するX投稿"><details class="source-previews"><summary>投稿プレビューを表示（${posts.length}件）</summary><div>${posts.map(({ label, url }) => xPost(label, url)).join('')}</div></details></section>`;
 }
 
 export function renderMarkdownWithHeadings(
@@ -86,6 +81,7 @@ export function renderMarkdownWithHeadings(
     if (section) section.raw += token.raw;
   }
   let currentSection = -1;
+  let themeDisclosureOpen = false;
   const aiRendered = new Set<number>();
   const renderer = new Renderer();
   const headings: { id: string; title: string }[] = [];
@@ -96,8 +92,14 @@ export function renderMarkdownWithHeadings(
       headings.push({ id, title: text.replace(/\*|`/g, '') });
       currentSection++;
     }
-    if (depth === 2 || depth === 3)
-      return surfaceMarkup(renderRichText(depth === 2 ? 'h2' : 'h3', html, id));
+    const closeDisclosure = depth === 2 && themeDisclosureOpen ? '</details>' : '';
+    if (depth === 2) themeDisclosureOpen = text.trim() === '市場で広がったテーマ';
+    if (depth === 2 || depth === 3) {
+      const heading = surfaceMarkup(renderRichText(depth === 2 ? 'h2' : 'h3', html, id));
+      return closeDisclosure + heading + (depth === 2 && themeDisclosureOpen
+        ? `<details class="market-themes" data-theme-section="${id}"><summary>テーマ別の集計と投稿を見る</summary>`
+        : '');
+    }
     return `<h${depth}>${html}</h${depth}>`;
   };
   renderer.paragraph = function ({ tokens }) {
@@ -132,7 +134,7 @@ export function renderMarkdownWithHeadings(
       !aiRendered.has(currentSection) &&
       originalHtml.includes('https://www.google.com/finance/quote/')
     ) {
-      const prompt = `以下の内容を深掘りしたいです。根拠、反対の見方、リスク、次に確認すべき数字を整理してください。記載された観測日と現在を区別し、最新情報を確認できない点は明示してください。\n\n観測日：${article.date}\n記事：${article.url}#${section.id}\n\n以下は検討対象の記事本文です。\n\n${section.raw.trim()}`;
+      const prompt = `以下の内容を深掘りしたいです。\n\n${companyOverviewInstructions}\n\nそのうえで、根拠、反対の見方、リスク、次に確認すべき数字を整理してください。記載された観測日と現在を区別し、最新情報を確認できない点は明示してください。\n\n観測日：${article.date}\n記事：${article.url}#${section.id}\n\n以下は検討対象の記事本文です。\n\n${section.raw.trim()}`;
       paragraph += surfaceMarkup(renderTopicAI(section.id, prompt));
       aiRendered.add(currentSection);
     }
@@ -171,7 +173,7 @@ export function renderMarkdownWithHeadings(
     return `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light">${this.parser.parse(tokens)}</blockquote>`;
   };
   const marked = new Marked({ renderer, gfm: true });
-  const html = marked.parse(source) as string;
+  const html = (marked.parse(source) as string) + (themeDisclosureOpen ? '</details>' : '');
   const styles = new Set<string>();
   const compactHtml = html.replace(
     /<style>([\s\S]*?)<\/style>/g,

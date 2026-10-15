@@ -10,7 +10,6 @@ import {
 } from 'baseui/header-navigation';
 import { Button, KIND, SIZE } from 'baseui/button';
 import { Tag, KIND as TAG_KIND, SIZE as TAG_SIZE } from 'baseui/tag';
-import { Card } from 'baseui/card';
 import { Breadcrumbs } from 'baseui/breadcrumbs';
 import { StyledLink } from 'baseui/link';
 import {
@@ -107,47 +106,6 @@ export function renderHeader(home: string) {
         </StyledNavigationItem>
       </StyledNavigationList>
     </HeaderNavigation>,
-  );
-}
-export function renderLatest(
-  issue: { title: string; summary: string; date: string },
-  href: string,
-) {
-  return renderSurface(
-    'md-latest-',
-    <Card
-      title={issue.title}
-      action={<span>最新号を読む ↗</span>}
-      overrides={{
-        Root: {
-          props: { $as: 'a', href },
-          style: {
-            display: 'block',
-            textDecoration: 'none',
-            color: baseTheme.colors.contentPrimary,
-            ':hover': { backgroundColor: baseTheme.colors.backgroundSecondary },
-          },
-        },
-        Title: { props: { $as: 'h2' } },
-      }}
-    >
-      <div className="latest-metadata">
-        <LabelSmall as="time" dateTime={issue.date}>
-          {issue.date}
-        </LabelSmall>
-        <Tag
-          closeable={false}
-          kind={TAG_KIND.neutral}
-          size={TAG_SIZE.small}
-          noMargin
-        >
-          最新号
-        </Tag>
-      </div>
-      <ParagraphSmall as="p" color="contentSecondary">
-        {issue.summary}
-      </ParagraphSmall>
-    </Card>,
   );
 }
 export function renderBreadcrumbs(home: string, date: string) {
@@ -466,8 +424,8 @@ export function renderTopicAI(id: string, prompt: string, description?: string) 
   const long = links.some((link) => link.url.length > 12000);
   return renderSurface(
     `md-ai-${id}-`,
-    <details className="topic-ai">
-      <summary>AIで深掘り</summary>
+    <section className="topic-ai" aria-labelledby={`ai-title-${id}`}>
+      <LabelSmall as="h3" id={`ai-title-${id}`}>AIで深掘り</LabelSmall>
       <div className="topic-ai-content">
         <ParagraphSmall>
           {description ?? (long
@@ -505,7 +463,7 @@ export function renderTopicAI(id: string, prompt: string, description?: string) 
         </details>
         <output className="topic-ai-status" aria-live="polite" />
       </div>
-    </details>,
+    </section>,
     true,
   );
 }
