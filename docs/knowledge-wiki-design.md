@@ -193,7 +193,7 @@ node scripts/knowledge-cli.mjs review followup-YYYY-MM-DD-1 2026-10-20T07:00:00+
 }
 ```
 
-資料を読んだ場合は`outcome`を`supported / contradicted / inconclusive`のいずれかとし、`source_url`と`comparison`も記入する。`node scripts/knowledge-cli.mjs record ID attempt.json`で保存する。未公開と判定不能は`blocked`として次回も期限一覧に残し、`next_check_at`を必須とする。結果を登録するとWikiも更新され、同じ登録の再実行では履歴が重複しない。スクリプトはURL先の内容を検証しないため、資料の対象期と比較内容は執筆者が確かめる。
+資料を読んだ場合は`outcome`を`observed / supported / contradicted / inconclusive`のいずれかとし、`source_url`と`comparison`も記入する。`node scripts/knowledge-cli.mjs record ID attempt.json`で保存する。数値や公表事実だけを確認した場合は`observed`とし、投資仮説を支持した意味にしない。未公開と判定不能は`blocked`として次回も期限一覧に残し、`next_check_at`を必須とする。結果を登録するとWikiも更新され、同じ登録の再実行では履歴が重複しない。スクリプトはURL先の内容を検証しないため、資料の対象期と比較内容は執筆者が確かめる。
 
 記事を書いた後、もう一度`knowledge:backfill`を実行して新しい確認項目を加える。続いて選定記録を作り、実際に読んだ過去のID、使ったID、採用・見送りの理由、期限項目への対応を残す。過去記事を使った場合は当日の記事にリンクを置く。
 
