@@ -173,7 +173,7 @@ npm run knowledge:backfill
 npm run knowledge:prepare-run -- YYYY-MM-DD
 ```
 
-準備記録は`.local/knowledge/runs/YYYY-MM-DD-preparation.json`に残る。`related_candidates`には当日の全投稿と一致した過去候補、`due`には投稿と無関係でも再確認日を過ぎた項目、`review_queue`には未確認の旧記事、`candidate_index`にはその他の過去候補が入る。日刊の日付と実際の確認時刻は別に保持する。`node scripts/knowledge-cli.mjs prepare YYYY-MM-DD 検索語`でも過去候補を探せる。
+準備記録は`.local/knowledge/runs/YYYY-MM-DD-preparation.json`に残る。`related_candidates`には当日の全投稿と一致した過去候補、`due`には投稿と無関係でも再確認日を過ぎた項目、`review_queue`には未確認の旧記事、`priority_review_queue`には記事中の確認日が到来した未確認項目、`candidate_index`にはその他の過去候補が入る。日刊の日付と実際の確認時刻は別に保持する。`node scripts/knowledge-cli.mjs prepare YYYY-MM-DD 検索語`でも過去候補を探せる。
 
 過去の確認項目は初めにすべて`needs_review`となる。対象期・指標・日程を調べ、内部の次回確認日時と根拠を記録する。発表日が未公表なら内部日時を公式発表日として記事に書かない。
 
@@ -193,7 +193,7 @@ node scripts/knowledge-cli.mjs review followup-YYYY-MM-DD-1 2026-10-20T07:00:00+
 }
 ```
 
-資料を読んだ場合は`outcome`を`supported / contradicted / inconclusive`のいずれかとし、`source_url`と`comparison`も記入する。`node scripts/knowledge-cli.mjs record ID attempt.json`で保存する。未公開は`blocked`として次回も期限一覧に残る。結果を登録するとWikiも更新され、同じ登録の再実行では履歴が重複しない。スクリプトはURL先の内容を検証しないため、資料の対象期と比較内容は執筆者が確かめる。
+資料を読んだ場合は`outcome`を`supported / contradicted / inconclusive`のいずれかとし、`source_url`と`comparison`も記入する。`node scripts/knowledge-cli.mjs record ID attempt.json`で保存する。未公開と判定不能は`blocked`として次回も期限一覧に残し、`next_check_at`を必須とする。結果を登録するとWikiも更新され、同じ登録の再実行では履歴が重複しない。スクリプトはURL先の内容を検証しないため、資料の対象期と比較内容は執筆者が確かめる。
 
 記事を書いた後、もう一度`knowledge:backfill`を実行して新しい確認項目を加える。続いて選定記録を作り、実際に読んだ過去のID、使ったID、採用・見送りの理由、期限項目への対応を残す。過去記事を使った場合は当日の記事にリンクを置く。
 
@@ -227,11 +227,14 @@ node scripts/knowledge-cli.mjs review followup-YYYY-MM-DD-1 2026-10-20T07:00:00+
       "note": "資料未公開のため再確認する"
     }
   ],
+  "priority_actions": [
+    { "id": "followup-YYYY-MM-DD-2", "status": "deferred", "note": "公式日程を確認できなかった" }
+  ],
   "backlog_note": "未レビュー項目の残りを次回も確認する"
 }
 ```
 
-`due_actions`は準備記録の`due`全件に一対一で対応する。`checked`には準備後に登録した確認履歴が必要。すべて対応したら`npm run knowledge:selection -- YYYY-MM-DD .local/knowledge/runs/YYYY-MM-DD-manifest.json`を実行する。検証は当日の投稿ID、元記事リンクと見出し、期限項目の抜けを点検する。`.local/knowledge/runs/YYYY-MM-DD-selection.json`に検索・読了・使用・採用・見送りを保存する。
+`due_actions`は準備記録の`due`全件に一対一で対応する。`priority_actions`も`priority_review_queue`全件に一対一で対応し、`reviewed`には準備後の新しいレビュー履歴を要求する。記事に書かれた日付は公式日程とは限らないため、一次資料で照合する。`checked`には準備後に登録した確認履歴が必要。すべて対応したら`npm run knowledge:selection -- YYYY-MM-DD .local/knowledge/runs/YYYY-MM-DD-manifest.json`を実行する。検証は当日の投稿ID、元記事リンクと見出し、期限項目の抜けを点検する。`.local/knowledge/runs/YYYY-MM-DD-selection.json`に検索・読了・使用・採用・見送りを保存する。
 
 `prompts/daily.md`がこの手順を規定する。最初の数回は生成記録と記事を照合し、見落としや後知恵がないか確認する。
 
