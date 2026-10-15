@@ -23,7 +23,12 @@
     "storage:backfill": "node scripts/backfill-storage.mjs",
     "login": "npm run browser",
     "check": "astro check",
-    "verify:ui": "node scripts/verify-ui.mjs"
+    "verify:ui": "node scripts/verify-ui.mjs",
+    "knowledge:backfill": "node scripts/knowledge-cli.mjs backfill",
+    "knowledge:prepare": "node scripts/knowledge-cli.mjs prepare",
+    "knowledge:prepare-run": "node scripts/knowledge-cli.mjs prepare-run",
+    "knowledge:selection": "node scripts/knowledge-cli.mjs selection",
+    "knowledge:build": "node scripts/knowledge-cli.mjs build"
   },
   "dependencies": {
     "@astrojs/react": "^4.4.2",
