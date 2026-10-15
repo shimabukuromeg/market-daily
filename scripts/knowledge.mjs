@@ -7,7 +7,6 @@ const hash = (value) => createHash('sha256').update(value).digest('hex');
 const dateFile = /^\d{4}-\d{2}-\d{2}\.md$/;
 
 function mentionedCheckDate(item) {
-  if (item.title.includes('毎号')) return { date: item.origin.slice('content/issues/'.length, -3), reason: 'recurring_in_article' };
   const match = item.title.match(/(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日/);
   if (!match) return null;
   const origin = item.origin.match(/(\d{4})-(\d{2})-(\d{2})\.md$/);
@@ -437,7 +436,7 @@ export async function recordFollowupAttempt({
   if (!review || review.origin_hash !== item.origin_hash)
     throw new Error('Review this followup before recording an attempt');
   if (
-    !['unavailable', 'inconclusive', 'supported', 'contradicted'].includes(
+    !['unavailable', 'inconclusive', 'observed', 'supported', 'contradicted'].includes(
       attempt.outcome,
     )
   )

@@ -168,7 +168,7 @@ test('stages every prior followup without inventing dates or results', async () 
         reviewFile,
         id: 'followup-2026-10-14-1',
         attempt: {
-          outcome: 'supported',
+          outcome: 'observed',
           checked_at: '2026-10-18T07:00:00+09:00',
           target_period: '2026年度第3四半期',
           note: '仮説と整合',
@@ -181,10 +181,10 @@ test('stages every prior followup without inventing dates or results', async () 
       reviewFile,
       id: 'followup-2026-10-14-1',
       attempt: {
-        outcome: 'supported',
+        outcome: 'observed',
         checked_at: '2026-10-18T07:00:00+09:00',
         target_period: '2026年度第3四半期',
-        note: '仮説と整合',
+        note: '公表値を確認。仮説全体の判定ではない',
         source_url: 'https://example.com/new-ir.pdf',
         comparison: '利益率5%から6%へ改善',
       },
