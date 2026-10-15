@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { explains, type Explain } from '../../lib/explains';
 import { sitePath } from '../../lib/issues';
 import { renderMarkdownWithHeadings } from '../../lib/markdown';
+import { companyOverviewInstructions } from '../../lib/topic-ai-prompt';
 import { renderTopicAI } from '../../lib/base-surfaces';
 
 export function getStaticPaths() {
@@ -16,7 +17,7 @@ interface Props { item: Explain }
 const { item } = Astro.props;
 const canonical = new URL(sitePath(`explains/${item.slug}/`), Astro.site).href;
 const content = renderMarkdownWithHeadings(item.markdown);
-const aiPrompt = `この記事について、自分でも理解を深めたいです。記事を読んだうえで、中心の問いへの答えを具体例を使って説明し、根拠・反対の見方・次に確認すべき数字を整理してください。記事の日付と現在の情報を区別してください。記事を開けない場合は推測せず、本文を貼るよう求めてください。\n\n記事：${canonical}\n記事の日付：${item.date}\n問い：${item.question}\n記事の答え：${item.answer}`;
+const aiPrompt = `この記事について、自分でも理解を深めたいです。\n\n${companyOverviewInstructions}\n\n記事を読んだうえで、中心の問いへの答えを具体例を使って説明し、根拠・反対の見方・次に確認すべき数字を整理してください。記事の日付と現在の情報を区別してください。記事を開けない場合は推測せず、本文を貼るよう求めてください。\n\n記事：${canonical}\n記事の日付：${item.date}\n問い：${item.question}\n記事の答え：${item.answer}`;
 const aiPanel = renderTopicAI(
   `explain-${item.slug}`,
   aiPrompt,

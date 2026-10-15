@@ -1,4 +1,16 @@
 <script>
   import { enhanceSources } from './enhance-sources';
   enhanceSources();
+  const revealTheme = () => {
+    for (const details of document.querySelectorAll<HTMLDetailsElement>('.market-themes')) {
+      if (location.hash === `#${details.dataset.themeSection}`) details.open = true;
+    }
+  };
+  revealTheme();
+  window.addEventListener('hashchange', revealTheme);
+  // Clicking the same TOC target again does not fire hashchange.
+  document.addEventListener('click', (event) => {
+    const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="#"]');
+    if (link?.hash === location.hash) revealTheme();
+  });
 </script>

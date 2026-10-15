@@ -1,11 +1,3 @@
-import { createRoot } from 'react-dom/client';
-import { BaseProvider } from 'baseui';
-import { Accordion, Panel } from 'baseui/accordion';
-import { StyledLink } from 'baseui/link';
-import { Provider } from 'styletron-react';
-import { Client } from 'styletron-engine-monolithic';
-import { baseTheme } from '../lib/base-theme';
-
 type XWindow = Window & {
   twttr?: {
     ready?: (callback: () => void) => void;
@@ -38,57 +30,6 @@ function loadWidgets() {
   return widgets;
 }
 export function enhanceSources() {
-  const engine = new Client({ prefix: 'md-sources-' });
-  for (const container of document.querySelectorAll<HTMLElement>(
-    '.source-accordion',
-  )) {
-    const summary = container.querySelector('summary')?.textContent ?? '引用元';
-    const links = [...container.querySelectorAll<HTMLAnchorElement>('a')].map(
-      (link) => ({
-        label: link.querySelector('span')?.textContent ?? link.textContent,
-        href: link.href,
-      }),
-    );
-    createRoot(container).render(
-      <Provider value={engine}>
-        <BaseProvider theme={baseTheme}>
-          <Accordion stateReducer={(_type, next) => next}>
-            <Panel
-              title={summary}
-              overrides={{
-                Content: {
-                  style: {
-                    transitionDuration: baseTheme.animation.timing200,
-                    transitionDelay: '0ms',
-                  },
-                },
-                ContentAnimationContainer: {
-                  style: { transitionDuration: baseTheme.animation.timing200 },
-                },
-                ToggleIcon: {
-                  style: { transitionDuration: baseTheme.animation.timing200 },
-                },
-              }}
-            >
-              <ul className="source-links">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <StyledLink
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {link.label} ↗
-                    </StyledLink>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          </Accordion>
-        </BaseProvider>
-      </Provider>,
-    );
-  }
   for (const details of document.querySelectorAll<HTMLDetailsElement>(
     '.source-previews',
   )) {
