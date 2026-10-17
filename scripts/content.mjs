@@ -23,8 +23,8 @@ for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().re
     );
     const lines = quizzes[0][1].trim().split('\n');
     assert(
-      lines.length >= 2 && lines.length <= 3,
-      `${file}: quiz needs 2–3 questions`,
+      lines.length >= 4 && lines.length <= 6,
+      `${file}: quiz needs 4–6 questions`,
     );
     for (const [index, line] of lines.entries()) {
       const fields = line.split(' | ').map((value) => value.trim());
