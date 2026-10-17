@@ -1,0 +1,36 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { dailyQuizQuestions } from '../../lib/daily-quiz';
+import { editions, sitePath } from '../../lib/issues';
+
+const quizzes = editions
+  .map((issue) => ({ issue, count: dailyQuizQuestions(issue.markdown).length }))
+  .filter(({ count }) => count > 0);
+---
+
+<BaseLayout title="理解度チェック | Market Daily" description="株の観測日誌を読んだあと、その日の材料と判断を60秒のクイズで確かめる。">
+  <main id="main-content" tabindex="-1">
+    <SiteHeader />
+    <section class="archive explain-archive" aria-labelledby="quiz-archive-title">
+      <div class="explain-hero">
+        <p class="explain-eyebrow">MARKET DAILY / 理解度チェック</p>
+        <h1 id="quiz-archive-title">今日の判断を、<br />60秒で確かめる。</h1>
+        <p>観測日誌を読んだら、その日の材料と判断のつながりをクイズで確認できます。</p>
+      </div>
+      <div class="archive-label"><h2>理解度チェック</h2><span>新しい順</span></div>
+      <div class="issue-list">
+        {quizzes.map(({ issue, count }) => (
+          <a class="issue-card" href={sitePath(`${issue.date}/quiz/`)}>
+            <div class="issue-card-meta"><time datetime={issue.date}>{issue.date}</time><span>{count}問 / 60秒</span></div>
+            <h2>{issue.title}</h2>
+            <p>{issue.summary}</p>
+            <span class="read-more">挑戦する <span aria-hidden="true">↗</span></span>
+          </a>
+        ))}
+      </div>
+    </section>
+    <SiteFooter />
+  </main>
+</BaseLayout>

@@ -77,6 +77,23 @@ for (const issue of issues) {
       );
     }
   }
+  if (issue.date >= '2026-10-16') {
+    const quiz = /```quiz\n([\s\S]*?)\n```/.exec(issue.markdown);
+    const count = quiz?.[1].trim().split('\n').length ?? 0;
+    assert.ok(html.includes(`/${issue.date}/quiz/`), `${issue.date}: quiz link`);
+    const quizHtml = await read(`dist/${issue.date}/quiz/index.html`);
+    assert.equal(
+      (quizHtml.match(/<section[^>]*data-question-panel/g) ?? []).length,
+      count,
+      `${issue.date}: one screen per question`,
+    );
+    assert.equal(
+      (quizHtml.match(/<li[^>]*data-review-item/g) ?? []).length,
+      count,
+      `${issue.date}: answer explanations present`,
+    );
+    assert.ok(quizHtml.includes('class="quiz-fallback"'), `${issue.date}: no-JavaScript fallback`);
+  }
   const conditionLists = Lexer.lex(issue.markdown).filter(
     (token) =>
       token.type === 'list' &&
@@ -129,6 +146,18 @@ for (const issue of issues)
 console.log(
   `Verified ${issues.length} articles, all TOC targets, ${checkedLinks} unique-per-article source links, static source fallbacks, table labels, metadata, and archive routes.`,
 );
+
+const quizArchive = await read('dist/quizzes/index.html');
+const quizIssues = issues.filter((issue) => /^```quiz\n/m.test(issue.markdown));
+assert.ok(archive.includes('quizzes/'), 'archive: quiz navigation');
+assert.ok(quizArchive.includes('explains/'), 'quiz archive: site navigation');
+for (const issue of quizIssues) {
+  assert.ok(
+    quizArchive.includes(`${issue.date}/quiz/`),
+    `quiz archive: ${issue.date}`,
+  );
+}
+console.log(`Verified quiz archive links for ${quizIssues.length} editions.`);
 
 const guide = await read('dist/decision-types/index.html');
 let typeLinks = 0;

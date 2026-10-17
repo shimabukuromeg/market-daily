@@ -987,6 +987,34 @@ article {
 .source-previews summary {
   color: var(--muted);
 }
+/* A quiet handoff from the article to its own quiz page. */
+.quiz-invitation {
+  margin-top: var(--base-space-scale800);
+  padding: var(--base-space-scale700) var(--base-space-scale800);
+  border: 1px solid var(--base-color-borderOpaque);
+  border-radius: var(--base-radius-radius200);
+}
+.prose .quiz-invitation p {
+  margin: 0 0 var(--base-space-scale500);
+  color: var(--muted);
+  font-size: 14px;
+}
+.quiz-invitation a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--base-space-scale500);
+  min-height: 44px;
+  padding: var(--base-space-scale300) var(--base-space-scale600);
+  background: var(--foreground);
+  color: var(--paper);
+  border-radius: var(--base-radius-radius200);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.quiz-invitation a:hover { color: var(--paper); }
+.quiz-invitation a span { font-size: 20px; }
+
 .source-previews blockquote {
   max-width: 550px;
   margin-left: auto;

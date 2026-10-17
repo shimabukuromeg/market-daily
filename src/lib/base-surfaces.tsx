@@ -94,9 +94,14 @@ export function renderHeader(home: string) {
             観測日誌
           </Button>
         </StyledNavigationItem>
-        <StyledNavigationItem>
+        <StyledNavigationItem $style={{ paddingLeft: baseTheme.sizing.scale300 }}>
           <Button $as="a" href={sitePath('explains/')} kind={KIND.tertiary} size={SIZE.compact}>
             深掘り
+          </Button>
+        </StyledNavigationItem>
+        <StyledNavigationItem $style={{ paddingLeft: baseTheme.sizing.scale300 }}>
+          <Button $as="a" href={sitePath('quizzes/')} kind={KIND.tertiary} size={SIZE.compact}>
+            理解度チェック
           </Button>
         </StyledNavigationItem>
         <StyledNavigationItem className="header-github">
