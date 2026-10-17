@@ -31,7 +31,7 @@ const letters = ['A', 'B', 'C'];
   type="article"
   image={`og/${issue.date}.png`}
 >
-  <main class="quiz-page" id="main-content" data-daily-quiz>
+  <main class="quiz-page" id="main-content" data-daily-quiz data-share-url={canonical} data-share-date={issue.date} data-quiz-seconds="120">
     <header class="quiz-header">
       <a href={articleUrl}>← 記事に戻る</a>
       <span>MARKET DAILY / {issue.date}</span>
@@ -41,15 +41,16 @@ const letters = ['A', 'B', 'C'];
       <section class="quiz-intro" data-quiz-intro hidden>
         <p class="quiz-eyebrow">READING CHECK / {issue.date}</p>
         <h1 tabindex="-1">今日の判断を、説明できる？</h1>
-        <p class="quiz-lede">「{issue.title}」の要点を、選択式で確かめます。</p>
+        <p class="quiz-lede">全{questions.length}問、制限時間は120秒。今日の材料と判断のつながりを確かめます。</p>
         <dl class="quiz-stats">
           <div><dt>問題数</dt><dd>{questions.length}問</dd></div>
-          <div><dt>制限時間</dt><dd>なし</dd></div>
+          <div><dt>制限時間</dt><dd>120秒</dd></div>
           <div><dt>配点</dt><dd>{questions.length}点満点</dd></div>
         </dl>
         <ul class="quiz-instructions">
           <li>問題は一問ずつ表示します。選択すると次へ進みます。</li>
-          <li>正解と理由は、全問答えたあとに確認できます。</li>
+          <li>120秒たつと自動で終了し、未回答は不正解になります。</li>
+          <li>正解と理由は、最後にまとめて表示します。</li>
         </ul>
         <button class="quiz-primary" type="button" data-quiz-start>理解度チェックを始める</button>
       </section>
@@ -63,16 +64,16 @@ const letters = ['A', 'B', 'C'];
         >
           <div class="quiz-progress-label">
             <span>第{index + 1}問 <span class="quiz-progress-total">／ 全{questions.length}問</span></span>
-            <span>時間制限なし</span>
+            <span class="quiz-timer" role="timer" aria-label="残り時間"><span>残り</span><strong data-remaining>120</strong><span>秒</span></span>
           </div>
           <div
             class="quiz-progress-track"
             role="progressbar"
-            aria-label="問題の進行"
-            aria-valuenow={index + 1}
+            aria-label="残り時間"
+            aria-valuenow="120"
             aria-valuemin="0"
-            aria-valuemax={questions.length}
-          ><span style={`width: ${(index + 1) / questions.length * 100}%`}></span></div>
+            aria-valuemax="120"
+          ><span data-time-fill style="width: 100%"></span></div>
           <h2 tabindex="-1">{question.prompt}</h2>
           <div class="quiz-options">
             {question.options.map((option, optionIndex) => (
@@ -89,12 +90,17 @@ const letters = ['A', 'B', 'C'];
         <p class="quiz-eyebrow">RESULT / {issue.date}</p>
         <h1 tabindex="-1">あなたの理解度</h1>
         <p class="quiz-result-score" data-score>0/{questions.length}</p>
-        <p class="quiz-result-lede">記事の根拠と照らしながら、答えを確かめましょう。</p>
+        <p class="quiz-result-lede" data-result-lede>記事の根拠と照らしながら、答えを確かめましょう。</p>
         <dl class="quiz-stats">
           <div><dt>正解数</dt><dd data-correct-count>0問</dd></div>
           <div><dt>正答率</dt><dd data-accuracy>0%</dd></div>
           <div><dt>かかった時間</dt><dd data-elapsed>0秒</dd></div>
         </dl>
+        <div class="quiz-share-actions">
+          <a data-share-result href="https://x.com/intent/post" target="_blank" rel="noopener noreferrer">結果をXでポストする</a>
+          <button type="button" data-copy-result>結果の文章をコピーする</button>
+          <p role="status" aria-live="polite" data-copy-status></p>
+        </div>
         <h2 class="quiz-review-heading">正解と解説</h2>
         <ol class="quiz-review">
           {questions.map((question, index) => (

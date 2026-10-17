@@ -51,13 +51,13 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
-  border: 1px solid var(--base-color-borderOpaque);
+  border: 1px solid var(--base-color-borderAccent);
 }
 .quiz-stats div {
   padding: var(--base-space-scale500);
 }
 .quiz-stats div + div {
-  border-left: 1px solid var(--base-color-borderOpaque);
+  border-left: 1px solid var(--base-color-borderAccent);
 }
 .quiz-stats dt {
   color: var(--muted);
@@ -104,8 +104,23 @@
   color: var(--muted);
   font-weight: 400;
 }
+.quiz-timer {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--base-space-scale100);
+  color: var(--foreground);
+}
+.quiz-timer > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.quiz-timer strong {
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
 .quiz-progress-track {
-  height: 4px;
+  height: 6px;
   margin-top: var(--base-space-scale300);
   background: var(--base-color-backgroundTertiary);
 }
@@ -156,12 +171,53 @@
 }
 .quiz-result-score {
   margin: 0 0 var(--base-space-scale500);
-  color: var(--accent);
+  color: var(--base-color-contentNegative);
   font-size: clamp(76px, 15vw, 128px);
   font-weight: 650;
   line-height: 1.05;
   letter-spacing: -0.07em;
   font-variant-numeric: tabular-nums;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 10px;
+}
+.quiz-share-actions {
+  display: grid;
+  gap: var(--base-space-scale400);
+  margin-top: var(--base-space-scale900);
+}
+.quiz-share-actions a,
+.quiz-share-actions button {
+  display: grid;
+  place-items: center;
+  min-height: 56px;
+  padding: var(--base-space-scale400) var(--base-space-scale600);
+  border: 1px solid var(--foreground);
+  border-radius: var(--base-radius-radius200);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.quiz-share-actions a {
+  background: var(--foreground);
+  color: var(--paper);
+}
+.quiz-share-actions button {
+  background: transparent;
+  color: var(--foreground);
+}
+.quiz-share-actions a:hover {
+  background: var(--base-color-contentSecondary);
+}
+.quiz-share-actions button:hover {
+  background: var(--base-color-backgroundSecondary);
+}
+.quiz-share-actions p {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
 }
 .quiz-review-heading {
   margin: var(--base-space-scale1200) 0 var(--base-space-scale600);
@@ -255,6 +311,9 @@
   }
   .quiz-question-screen h2 {
     margin-top: var(--base-space-scale900);
+  }
+  .quiz-intro h1 {
+    font-size: 36px;
   }
 }
 @media (max-width: 350px) {
