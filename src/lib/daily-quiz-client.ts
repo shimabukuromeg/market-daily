@@ -9,7 +9,7 @@ export function enhanceDailyQuiz() {
   );
   if (!panels.length) return;
 
-  const timeLimit = Number(root.dataset.quizSeconds) || 120;
+  const timeLimit = Number(root.dataset.quizSeconds) || 60;
   let current = 0;
   let startedAt = 0;
   let deadlineAt = 0;

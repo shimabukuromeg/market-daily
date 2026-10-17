@@ -22,6 +22,7 @@ const questions = dailyQuizQuestions(issue.markdown);
 const articleUrl = sitePath(`${issue.date}/`);
 const canonical = new URL(sitePath(`${issue.date}/quiz/`), Astro.site).href;
 const letters = ['A', 'B', 'C'];
+const timeLimitSeconds = 60;
 ---
 
 <BaseLayout
@@ -31,7 +32,7 @@ const letters = ['A', 'B', 'C'];
   type="article"
   image={`og/${issue.date}.png`}
 >
-  <main class="quiz-page" id="main-content" data-daily-quiz data-share-url={canonical} data-share-date={issue.date} data-quiz-seconds="120">
+  <main class="quiz-page" id="main-content" data-daily-quiz data-share-url={canonical} data-share-date={issue.date} data-quiz-seconds={timeLimitSeconds}>
     <header class="quiz-header">
       <a href={articleUrl}>← 記事に戻る</a>
       <span>MARKET DAILY / {issue.date}</span>
@@ -41,15 +42,15 @@ const letters = ['A', 'B', 'C'];
       <section class="quiz-intro" data-quiz-intro hidden>
         <p class="quiz-eyebrow">READING CHECK / {issue.date}</p>
         <h1 tabindex="-1">今日の判断を、説明できる？</h1>
-        <p class="quiz-lede">全{questions.length}問、制限時間は120秒。今日の材料と判断のつながりを確かめます。</p>
+        <p class="quiz-lede">全{questions.length}問、制限時間は{timeLimitSeconds}秒。今日の材料と判断のつながりを確かめます。</p>
         <dl class="quiz-stats">
           <div><dt>問題数</dt><dd>{questions.length}問</dd></div>
-          <div><dt>制限時間</dt><dd>120秒</dd></div>
+          <div><dt>制限時間</dt><dd>{timeLimitSeconds}秒</dd></div>
           <div><dt>配点</dt><dd>{questions.length}点満点</dd></div>
         </dl>
         <ul class="quiz-instructions">
           <li>問題は一問ずつ表示します。選択すると次へ進みます。</li>
-          <li>120秒たつと自動で終了し、未回答は不正解になります。</li>
+          <li>{timeLimitSeconds}秒たつと自動で終了し、未回答は不正解になります。</li>
           <li>正解と理由は、最後にまとめて表示します。</li>
         </ul>
         <button class="quiz-primary" type="button" data-quiz-start>理解度チェックを始める</button>
@@ -64,15 +65,15 @@ const letters = ['A', 'B', 'C'];
         >
           <div class="quiz-progress-label">
             <span>第{index + 1}問 <span class="quiz-progress-total">／ 全{questions.length}問</span></span>
-            <span class="quiz-timer" role="timer" aria-label="残り時間"><span>残り</span><strong data-remaining>120</strong><span>秒</span></span>
+            <span class="quiz-timer" role="timer" aria-label="残り時間"><span>残り</span><strong data-remaining>{timeLimitSeconds}</strong><span>秒</span></span>
           </div>
           <div
             class="quiz-progress-track"
             role="progressbar"
             aria-label="残り時間"
-            aria-valuenow="120"
+            aria-valuenow={timeLimitSeconds}
             aria-valuemin="0"
-            aria-valuemax="120"
+            aria-valuemax={timeLimitSeconds}
           ><span data-time-fill style="width: 100%"></span></div>
           <h2 tabindex="-1">{question.prompt}</h2>
           <div class="quiz-options">
