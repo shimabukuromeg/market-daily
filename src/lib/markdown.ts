@@ -51,6 +51,16 @@ function themeChart(source: string) {
     <p>テーマは重複分類です。同じ投稿・投稿者を複数のテーマに含みます。棒の長さは各列の最大値を基準にしています。</p><details class="chart-data"><summary>集計値を表で確認</summary>${surfaceMarkup(renderThemeTable(data))}</details></figure>`;
 }
 
+function quiz(source: string) {
+  const questions = rows(source);
+  return `<ol class="comprehension-quiz">${questions
+    .map(
+      ([question, answer, reason], index) =>
+        `<li class="quiz-item"><details><summary><span class="quiz-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="quiz-question">${escape(question)}</span><span class="quiz-reveal">答えを見る</span></summary><div class="quiz-answer"><p><strong>答え：</strong>${escape(answer)}</p><p>${escape(reason)}</p></div></details></li>`,
+    )
+    .join('')}</ol>`;
+}
+
 function xPost(label: string, url: string) {
   return `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><p>${escape(label)}</p><a href="${escape(url)}">Xで元投稿を読む ↗</a></blockquote>`;
 }
@@ -166,6 +176,7 @@ export function renderMarkdownWithHeadings(
     if (lang === 'metrics') return metrics(text);
     if (lang === 'theme-chart') return themeChart(text);
     if (lang === 'x-posts') return xPosts(text);
+    if (lang === 'quiz') return quiz(text);
     const language = lang ? ` class="language-${escape(lang)}"` : '';
     return `<pre><code${language}>${escape(text)}</code></pre>`;
   };

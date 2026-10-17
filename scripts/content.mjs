@@ -14,6 +14,26 @@ for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().re
  assert(!/<\/?(?:script|iframe|style)\b/i.test(m[2]),'HTML is not allowed');
  assert(m[2].includes('## 今日の要点') || m[2].includes('## 今日の判定'),'Missing editorial structure');
  assert(meta.posts===0||/https:\/\/x\.com\/[A-Za-z0-9_]+\/status\/\d+/.test(m[2]),'Missing source links');
+  if (meta.date >= '2026-10-16') {
+    const quizzes = [...m[2].matchAll(/^```quiz\n([\s\S]*?)\n```/gm)];
+    assert.equal(quizzes.length, 1, `${file}: one quiz block required`);
+    assert(
+      /## 理解度チェック\n[\s\S]*?```quiz\n/.test(m[2]),
+      `${file}: quiz section required`,
+    );
+    const lines = quizzes[0][1].trim().split('\n');
+    assert(
+      lines.length >= 2 && lines.length <= 3,
+      `${file}: quiz needs 2–3 questions`,
+    );
+    for (const [index, line] of lines.entries()) {
+      const fields = line.split(' | ').map((value) => value.trim());
+      assert(
+        fields.length === 3 && fields.every(Boolean),
+        `${file}: quiz row ${index + 1} needs question, answer, reason`,
+      );
+    }
+  }
  if(process.argv.includes('--sources') && meta.date === (process.argv.find(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)) ?? (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().at(-1)?.slice(0,-3))){
   const source=JSON.parse(await readFile(new URL('../.local/collections/'+meta.date+'.json',import.meta.url)));
   const allowed=new Set(source.posts.map(p=>p.url));

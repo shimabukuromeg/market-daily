@@ -77,6 +77,20 @@ for (const issue of issues) {
       );
     }
   }
+  if (issue.date >= '2026-10-16') {
+    const quiz = /```quiz\n([\s\S]*?)\n```/.exec(issue.markdown);
+    const count = quiz?.[1].trim().split('\n').length ?? 0;
+    assert.equal(
+      (html.match(/class="quiz-item"/g) ?? []).length,
+      count,
+      `${issue.date}: every quiz question renders`,
+    );
+    assert.equal(
+      (html.match(/<details><summary><span class="quiz-number"/g) ?? []).length,
+      count,
+      `${issue.date}: answers use closed native disclosure`,
+    );
+  }
   const conditionLists = Lexer.lex(issue.markdown).filter(
     (token) =>
       token.type === 'list' &&
