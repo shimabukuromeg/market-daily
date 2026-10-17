@@ -147,6 +147,18 @@ console.log(
   `Verified ${issues.length} articles, all TOC targets, ${checkedLinks} unique-per-article source links, static source fallbacks, table labels, metadata, and archive routes.`,
 );
 
+const quizArchive = await read('dist/quizzes/index.html');
+const quizIssues = issues.filter((issue) => /^```quiz\n/m.test(issue.markdown));
+assert.ok(archive.includes('quizzes/'), 'archive: quiz navigation');
+assert.ok(quizArchive.includes('explains/'), 'quiz archive: site navigation');
+for (const issue of quizIssues) {
+  assert.ok(
+    quizArchive.includes(`${issue.date}/quiz/`),
+    `quiz archive: ${issue.date}`,
+  );
+}
+console.log(`Verified quiz archive links for ${quizIssues.length} editions.`);
+
 const guide = await read('dist/decision-types/index.html');
 let typeLinks = 0;
 for (const issue of issues) {
