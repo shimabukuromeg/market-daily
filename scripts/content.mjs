@@ -29,9 +29,11 @@ for(const file of (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().re
     for (const [index, line] of lines.entries()) {
       const fields = line.split(' | ').map((value) => value.trim());
       assert(
-        fields.length === 3 && fields.every(Boolean),
-        `${file}: quiz row ${index + 1} needs question, answer, reason`,
+        fields.length === 6 && fields.every(Boolean),
+        `${file}: quiz row ${index + 1} needs question, three options, answer letter, and reason`,
       );
+      assert(['A','B','C'].includes(fields[4]), `${file}: quiz row ${index + 1} has invalid answer`);
+      assert(new Set(fields.slice(1,4)).size === 3, `${file}: quiz row ${index + 1} repeats an option`);
     }
   }
  if(process.argv.includes('--sources') && meta.date === (process.argv.find(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)) ?? (await readdir(folder)).filter(f=>f.endsWith('.md')).sort().at(-1)?.slice(0,-3))){

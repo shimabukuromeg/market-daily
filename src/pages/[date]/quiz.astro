@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { editions, sitePath, type Issue } from '../../lib/issues';
+import { dailyQuizQuestions } from '../../lib/daily-quiz';
+import '../../styles/daily-quiz.css';
+
+export function getStaticPaths() {
+  return editions
+    .filter((issue) => dailyQuizQuestions(issue.markdown).length > 0)
+    .map((issue) => ({
+      params: { date: issue.date },
+      props: { issue },
+    }));
+}
+
+interface Props {
+  issue: Issue;
+}
+
+const { issue } = Astro.props;
+const questions = dailyQuizQuestions(issue.markdown);
+const articleUrl = sitePath(`${issue.date}/`);
+const canonical = new URL(sitePath(`${issue.date}/quiz/`), Astro.site).href;
+const letters = ['A', 'B', 'C'];
+---
+
+<BaseLayout
+  title={`${issue.date} 理解度チェック | Market Daily`}
+  description={`${issue.date}の株の観測日誌をもとにした${questions.length}問の理解度チェック。答えた後に根拠を確認できます。`}
+  canonical={canonical}
+  type="article"
+  image={`og/${issue.date}.png`}
+>
+  <main class="quiz-page" id="main-content" data-daily-quiz>
+    <header class="quiz-header">
+      <a href={articleUrl}>← 記事に戻る</a>
+      <span>MARKET DAILY / {issue.date}</span>
+    </header>
+
+    <div class="quiz-frame">
+      <section class="quiz-intro" data-quiz-intro hidden>
+        <p class="quiz-eyebrow">READING CHECK / {issue.date}</p>
+        <h1 tabindex="-1">今日の判断を、説明できる？</h1>
+        <p class="quiz-lede">「{issue.title}」の要点を、選択式で確かめます。</p>
+        <dl class="quiz-stats">
+          <div><dt>問題数</dt><dd>{questions.length}問</dd></div>
+          <div><dt>制限時間</dt><dd>なし</dd></div>
+          <div><dt>配点</dt><dd>{questions.length}点満点</dd></div>
+        </dl>
+        <ul class="quiz-instructions">
+          <li>問題は一問ずつ表示します。選択すると次へ進みます。</li>
+          <li>正解と理由は、全問答えたあとに確認できます。</li>
+        </ul>
+        <button class="quiz-primary" type="button" data-quiz-start>理解度チェックを始める</button>
+      </section>
+
+      {questions.map((question, index) => (
+        <section
+          class="quiz-question-screen"
+          data-question-panel
+          data-correct={question.correctIndex}
+          hidden
+        >
+          <div class="quiz-progress-label">
+            <span>第{index + 1}問 <span class="quiz-progress-total">／ 全{questions.length}問</span></span>
+            <span>時間制限なし</span>
+          </div>
+          <div
+            class="quiz-progress-track"
+            role="progressbar"
+            aria-label="問題の進行"
+            aria-valuenow={index + 1}
+            aria-valuemin="0"
+            aria-valuemax={questions.length}
+          ><span style={`width: ${(index + 1) / questions.length * 100}%`}></span></div>
+          <h2 tabindex="-1">{question.prompt}</h2>
+          <div class="quiz-options">
+            {question.options.map((option, optionIndex) => (
+              <button type="button" class="quiz-option" data-choice={optionIndex}>
+                <span aria-hidden="true" class="quiz-option-letter">{letters[optionIndex]}</span>
+                <span data-choice-label>{option}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <section class="quiz-result" data-quiz-result hidden>
+        <p class="quiz-eyebrow">RESULT / {issue.date}</p>
+        <h1 tabindex="-1">あなたの理解度</h1>
+        <p class="quiz-result-score" data-score>0/{questions.length}</p>
+        <p class="quiz-result-lede">記事の根拠と照らしながら、答えを確かめましょう。</p>
+        <dl class="quiz-stats">
+          <div><dt>正解数</dt><dd data-correct-count>0問</dd></div>
+          <div><dt>正答率</dt><dd data-accuracy>0%</dd></div>
+          <div><dt>かかった時間</dt><dd data-elapsed>0秒</dd></div>
+        </dl>
+        <h2 class="quiz-review-heading">正解と解説</h2>
+        <ol class="quiz-review">
+          {questions.map((question, index) => (
+            <li data-review-item>
+              <span class="quiz-review-status" data-review-status></span>
+              <h3>第{index + 1}問　{question.prompt}</h3>
+              <p data-your-answer></p>
+              <p data-correct-answer>正解：{letters[question.correctIndex]} {question.options[question.correctIndex]}</p>
+              <p>{question.reason}</p>
+            </li>
+          ))}
+        </ol>
+        <div class="quiz-result-actions">
+          <a href={articleUrl}>記事を読み返す</a>
+          <button type="button" data-quiz-restart>もう一度解く</button>
+        </div>
+      </section>
+
+      <div class="quiz-fallback">
+        <h1>{issue.date} 理解度チェック</h1>
+        <p>問いを考えてから、答えと理由を開いてください。</p>
+        <ol>
+          {questions.map((question) => (
+            <li>
+              <details>
+                <summary>{question.prompt}</summary>
+                <p>正解：{letters[question.correctIndex]} {question.options[question.correctIndex]}</p>
+                <p>{question.reason}</p>
+              </details>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+    <script>
+      import { enhanceDailyQuiz } from '../../lib/daily-quiz-client';
+      enhanceDailyQuiz();
+    </script>
+  </main>
+</BaseLayout>

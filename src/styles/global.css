@@ -987,54 +987,33 @@ article {
 .source-previews summary {
   color: var(--muted);
 }
-/* Native disclosure keeps answers hidden without adding client JavaScript. */
-.prose > .comprehension-quiz {
-  list-style: none;
-  margin: var(--base-space-scale800) 0 0;
-  padding: 0;
-  border-top: 1px solid var(--base-color-borderOpaque);
-}
-.prose .quiz-item {
-  margin: 0;
-  padding: 0;
-  border-bottom: 1px solid var(--base-color-borderOpaque);
-}
-.quiz-item summary {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: var(--base-space-scale500);
-  padding: var(--base-space-scale700) 0;
-  cursor: pointer;
-  list-style: none;
-}
-.quiz-item summary::-webkit-details-marker { display: none; }
-.quiz-number {
-  color: var(--muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-.quiz-question {
-  font-weight: 600;
-  line-height: 1.7;
-}
-.quiz-reveal {
-  color: var(--accent);
-  font-size: 12px;
-  white-space: nowrap;
-}
-.quiz-item details[open] .quiz-reveal { display: none; }
-.quiz-answer {
-  margin: 0 0 var(--base-space-scale700) calc(var(--base-space-scale500) + 2ch);
-  padding: var(--base-space-scale500) var(--base-space-scale700);
-  background: var(--base-color-backgroundSecondary);
+/* A quiet handoff from the article to its own quiz page. */
+.quiz-invitation {
+  margin-top: var(--base-space-scale800);
+  padding: var(--base-space-scale700) var(--base-space-scale800);
+  border: 1px solid var(--base-color-borderOpaque);
   border-radius: var(--base-radius-radius200);
 }
-.prose .quiz-answer p { margin: var(--base-space-scale200) 0; }
-@media (max-width: 390px) {
-  .quiz-item summary { grid-template-columns: auto minmax(0, 1fr); }
-  .quiz-reveal { grid-column: 2; }
+.prose .quiz-invitation p {
+  margin: 0 0 var(--base-space-scale500);
+  color: var(--muted);
+  font-size: 14px;
 }
+.quiz-invitation a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--base-space-scale500);
+  min-height: 44px;
+  padding: var(--base-space-scale300) var(--base-space-scale600);
+  background: var(--foreground);
+  color: var(--paper);
+  border-radius: var(--base-radius-radius200);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.quiz-invitation a:hover { color: var(--paper); }
+.quiz-invitation a span { font-size: 20px; }
 
 .source-previews blockquote {
   max-width: 550px;

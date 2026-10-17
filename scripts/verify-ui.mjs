@@ -80,16 +80,19 @@ for (const issue of issues) {
   if (issue.date >= '2026-10-16') {
     const quiz = /```quiz\n([\s\S]*?)\n```/.exec(issue.markdown);
     const count = quiz?.[1].trim().split('\n').length ?? 0;
+    assert.ok(html.includes(`/${issue.date}/quiz/`), `${issue.date}: quiz link`);
+    const quizHtml = await read(`dist/${issue.date}/quiz/index.html`);
     assert.equal(
-      (html.match(/class="quiz-item"/g) ?? []).length,
+      (quizHtml.match(/<section[^>]*data-question-panel/g) ?? []).length,
       count,
-      `${issue.date}: every quiz question renders`,
+      `${issue.date}: one screen per question`,
     );
     assert.equal(
-      (html.match(/<details><summary><span class="quiz-number"/g) ?? []).length,
+      (quizHtml.match(/<li[^>]*data-review-item/g) ?? []).length,
       count,
-      `${issue.date}: answers use closed native disclosure`,
+      `${issue.date}: answer explanations present`,
     );
+    assert.ok(quizHtml.includes('class="quiz-fallback"'), `${issue.date}: no-JavaScript fallback`);
   }
   const conditionLists = Lexer.lex(issue.markdown).filter(
     (token) =>
