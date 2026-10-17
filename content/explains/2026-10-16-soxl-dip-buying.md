@@ -10,6 +10,13 @@ sourceLabel: "@kashin_moneylabの投稿（キャプチャ、投稿日未確認�
 
 SOX指数が前日比4〜4.5%下がった日にSOXLを買うと、3カ月後の平均リターンはプラス48.7%。提示された図には、過去40回の購入についてそう書かれている。任意の日に買った場合の平均はプラス17.3%だ。ただし、集計期間や売買価格の決め方は示されておらず、この数字は再計算できない。
 
+<figure class="explain-source-capture">
+  <a href="../../images/explains/2026-10-16-soxl-source.jpg" target="_blank" rel="noopener noreferrer" aria-label="元投稿のキャプチャを拡大して見る">
+    <img src="../../images/explains/2026-10-16-soxl-source.jpg" width="591" height="1280" loading="lazy" decoding="async" alt="元投稿と棒グラフのキャプチャ。SOXが4〜4.5%下落した日のSOXLの3カ月後平均リターンは48.7%、任意の日は17.3%と示されている。" />
+  </a>
+  <figcaption>元投稿のキャプチャ。グラフの集計方法と数値は未検証です。<a href="../../images/explains/2026-10-16-soxl-source.jpg" target="_blank" rel="noopener noreferrer">画像を拡大して見る ↗</a></figcaption>
+</figure>
+
 ## 平均48.7%からは、勝率が分からない
 
 平均は少数の大きな上昇で押し上げられる。たとえば40回のうち多くが損失でも、一部の急騰が大きければ平均はプラスになる。「平均で約1.5倍」は、買うたびに1.5倍になるという意味ではない。
