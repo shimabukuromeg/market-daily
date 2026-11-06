@@ -150,6 +150,28 @@ summary:focus-visible {
   line-height: 1.7;
 }
 .explain-source a { color: inherit; }
+.explain-source-capture {
+  width: min(100%, 440px);
+  margin: 32px auto 44px;
+}
+.explain-source-capture > a {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--base-radius-radius400);
+}
+.explain-source-capture img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.explain-source-capture figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.explain-source-capture figcaption a { color: inherit; }
 @media (max-width: 760px) {
   .explain-question { padding: 22px 20px; }
   .explain-body { display: block; }
